@@ -42,11 +42,11 @@ public class TrafficLight implements Runnable{
 		lighter.stop();
 	    }
 	    
-	    public static void main(String args[]){
+	    /*public static void main(String args[]){
 	    	TrafficLight t=new TrafficLight();
 	    	t.start();
 	    	
 	    	
-	    }
+	    }*/
 	} 
 	
