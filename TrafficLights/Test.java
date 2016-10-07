@@ -20,12 +20,12 @@ public class Test extends TrafficLight implements Runnable{
 		    if (s==1){
 	                      s=tl.signal;
 	                    //  pause=greenpause;
-	                      System.out.println("car is moving as light is green i.e., "+s);
+	                      System.out.println("car is moving as light is green i.e., signal is"+s);
 	                  }
 	                  else {
 	                      s=tl.signal;
 	                    //  pause=redpause;
-	                      System.out.println("car stopped as light is red i.e., "+s);
+	                      System.out.println("car stopped as light is red i.e., signal is"+s);
 	                  }
 		    try {
 			//Thread.sleep(6000);
