@@ -1,3 +1,9 @@
+/*
+tester classTrafficSimulation.java was incorporated with Configuration.java 
+due to inability of handling package files from command line prompt
+*/
+
+
 /* Copyright 2016 CEN6087: Cloud Computing Course Project */
 
 /* Configuration.java is part of Traffic Simulation Package. */
