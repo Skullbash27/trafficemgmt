@@ -8,7 +8,21 @@ public class Roads {
 	int entrancePoint;
 	int exitPoint;
 	
-	public int distance_to_next_intersection(){
-		return 0;
+	boolean roadDirection; //True for WE or NS, false for EW or SN
+	
+	//Distances to the next and previous road from the current one.
+	int distanceNext;
+	int distancePrevious;
+	
+	public int getRoadID(){
+		return roadID; //Return the road's ID number
+	}
+	
+	public int roadNext(){
+		return distanceNext; //Return the distance to the next street/avenue
+	}
+	
+	public int roadPrevious(){
+		return distancePrevious; //Return the distance to the previous street/avenue
 	}
 }

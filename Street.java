@@ -2,21 +2,21 @@
 public class Street extends Roads{
 	int[] street_distance;
 	
-	public Street(int ID, int entrance, int exit /*, int arraySize*/){
+	public Street(int ID, int entrance, int exit, boolean direction, int next, int previous){
 		checkStreet = true;
 		roadID = ID;
 		entrancePoint = entrance;
 		exitPoint = exit;
+		roadDirection = direction;
 		
-		//An array of each of the segments of the street.
-		street_distance = new int[7]; //Should probably be able to dynamically set this
-	}
-	
-	public void setDistance(int location, int value){
-		street_distance[location] = value ;
-	}
-	
-	public int getDistance(int location, int value){
-		return street_distance[location] = value ;
+		//Check to make sure 'next' and 'previous' are actual values
+		//If a street is on the edge, then there is no previous/next street,
+		//so the corresponding value would be 0 in those cases.
+		if (next > 0){
+			distanceNext = next;
+		}
+		if (previous > 0){
+			distancePrevious = previous;
+		}
 	}
 }
