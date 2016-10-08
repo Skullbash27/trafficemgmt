@@ -2,16 +2,23 @@
 public class Street extends Roads{
 	int[] street_distance;
 	
-	public Street(int ID, int entrance, int exit, boolean direction, int next, int previous){
+	public Street(char[] ID, char direction, int entrance, int exit, int next, int previous){
 		checkStreet = true;
-		roadID = ID;
+		roadID[0] = 'S';
+		
+		if (ID.length == 4){ //Make sure ID is length 4
+			//This should copy ID into the right places in roadID
+			System.arraycopy(ID, 0, roadID, 1, ID.length);
+		}
+		
+		//Streets are only going east or west
+		if (direction == 'E' || direction == 'W'){
+			roadID[7] = direction;
+		}
+		
 		entrancePoint = entrance;
 		exitPoint = exit;
-		roadDirection = direction;
 		
-		//Check to make sure 'next' and 'previous' are actual values
-		//If a street is on the edge, then there is no previous/next street,
-		//so the corresponding value would be 0 in those cases.
 		if (next > 0){
 			distanceNext = next;
 		}

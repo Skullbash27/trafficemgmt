@@ -2,16 +2,23 @@
 public class Avenue extends Roads{
 	int[] avenue_distance;
 
-	public Avenue(int ID, int entrance, int exit, boolean direction, int next, int previous){
+	public Avenue(char[] ID, char direction, int entrance, int exit, int next, int previous){
 		checkStreet = false;
-		roadID = ID;
+		roadID[0] = 'A';
+		
+		if (ID.length == 4){ //Make sure ID is length 4
+			//This should copy ID into the right places in roadID
+			System.arraycopy(ID, 0, roadID, 1, ID.length);
+		}
+		
+		//Avenues are only going north or south
+		if (direction == 'N' || direction == 'S'){
+			roadID[7] = direction;
+		}
+		
 		entrancePoint = entrance;
 		exitPoint = exit;
-		roadDirection = direction;
 		
-		//Check to make sure 'next' and 'previous' are actual values
-		//If a street is on the edge, then there is no previous/next street,
-		//so the corresponding value would be 0 in those cases.
 		if (next > 0){
 			distanceNext = next;
 		}
