@@ -1,7 +1,5 @@
 
 public class Avenue extends Roads{
-	int[] avenue_distance;
-
 	public Avenue(char[] ID, char direction, int entrance, int exit, int next, int previous){
 		checkStreet = false;
 		roadID[0] = 'A';
@@ -13,7 +11,7 @@ public class Avenue extends Roads{
 		
 		//Avenues are only going north or south
 		if (direction == 'N' || direction == 'S'){
-			roadID[7] = direction;
+			roadID[5] = direction;
 		}
 		
 		entrancePoint = entrance;

@@ -1,7 +1,5 @@
 
 public class Street extends Roads{
-	int[] street_distance;
-	
 	public Street(char[] ID, char direction, int entrance, int exit, int next, int previous){
 		checkStreet = true;
 		roadID[0] = 'S';
@@ -13,7 +11,7 @@ public class Street extends Roads{
 		
 		//Streets are only going east or west
 		if (direction == 'E' || direction == 'W'){
-			roadID[7] = direction;
+			roadID[5] = direction;
 		}
 		
 		entrancePoint = entrance;

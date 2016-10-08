@@ -27,7 +27,7 @@ public class TestRoad {
 		  Street[] streetArray = new Street[n];
 		  Avenue[] avenueArray = new Avenue[m];
 		  
-		  for (i=0; i<=n; i++){
+		  for (i=0; i<n; i++){
 			  test1 = getDigits(i);
 			  
 			  if (i%2 == 0){ //Alternate between East and West for each street
@@ -54,7 +54,7 @@ public class TestRoad {
 			  streetArray[i] = new Street(test1, altDirection, entranceValue, exitValue, nextValue, previousValue);
 		  }
 		  
-		  for (i=0; i<=m; i++){
+		  for (i=0; i<m; i++){
 			  test2 = getDigits(i);
 			  
 			  if (i%2 == 0){ //Alternate between North and South for each avenue
@@ -83,9 +83,11 @@ public class TestRoad {
 		  
 		  //Combine streetArray and avenueArray into the hash map for each intersection(?)
 		  //hashIntersection.put("k",streetArray[i],avenueArray[j]); //Doesn't work, intersections can't be named?
-		  for (i=0; i<=n; i++){
+		  for (i=0; i<n; i++){
 			  hashIntersection.put(streetArray[i], avenueArray);
 		  } //Not sure how this would work
+		  
+		  System.out.println(streetArray[0].roadID); //Test to see that the ID shows as expected
 	   }
 	
 	public static char[] getDigits(int original){
@@ -93,26 +95,26 @@ public class TestRoad {
 		int number;
 		
 		number = original;
-		digits[3] = (char) (original % 10); //The least significant digit
+		digits[3] = (char) (number % 10  + 48); //The least significant digit, add 48 to show correct character
 		number /= 10; //Divide by 10 to be able to get the next set of digits
 		  
 		//Using modulo and division to get the digits to put into the ID array.
 		if (original < 10){
 			digits[2] = '0';
 		} else{
-			digits[2] = (char) (number % 10);
+			digits[2] = (char) (number % 10  + 48);
 		} number /= 10;
 		  
 		if (original < 100){
 			digits[1] = '0';
 		} else{
-			digits[1] = (char) (number % 10);
+			digits[1] = (char) (number % 10  + 48);
 		} number /= 10;
 		  
 		if (original < 1000){ //The most significant digit
 			digits[0] = '0';
 		} else{
-			digits[0] = (char) (number % 10);
+			digits[0] = (char) (number % 10  + 48);
 		}
 		
 		return digits;

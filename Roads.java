@@ -3,7 +3,7 @@ import java.util.Arrays;
 public class Roads {
 	boolean checkStreet; //Set to true if the object is a street, and false for avenue
 	
-	char[] roadID = new char[7]; //The number for each street or avenue
+	char[] roadID = new char[6]; //The number for each street or avenue
 	
 	//These two are essentially used to show the start and end points of a road.
 	int entrancePoint;
@@ -23,7 +23,7 @@ public class Roads {
 	}
 	
 	public char getRoadDirection(){
-		return roadID[7]; //Returns the direction the street is going in: N, E, W, or S
+		return roadID[5]; //Returns the direction the street is going in: N, E, W, or S
 	}
 	
 	public int roadNext(){
