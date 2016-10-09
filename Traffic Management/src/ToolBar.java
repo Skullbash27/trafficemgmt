@@ -7,6 +7,10 @@ import javax.swing.JFrame;
 
 public class ToolBar extends JPanel implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JButton start;
 	private JButton stop;
 	private DisplayEvents events;
@@ -38,7 +42,7 @@ public class ToolBar extends JPanel implements ActionListener {
 				@Override
 				public void run() {
 					if (events != null) {
-						events.draw("Simulation has Started\n");
+						events.draw();
 						
 						/*
 						 * This is where we will be calling the
@@ -54,7 +58,7 @@ public class ToolBar extends JPanel implements ActionListener {
 		else if (isRunning == true) {
 			timer.cancel();
 			if (events != null) {
-				events.draw("Simualtion has Stopped\n");
+				events.draw();
 			}
 			Statistics stats = new Statistics();
 			stats.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

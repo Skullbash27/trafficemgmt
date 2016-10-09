@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;Canvas.java&apos; to &apos;TrafficGrid.java&apos;&#x0D;&#x0A;- Original project: &apos;Traffic Management&apos;&#x0D;&#x0A;- Original element: &apos;Canvas.java&apos;&#x0D;&#x0A;- Renamed element: &apos;TrafficGrid.java&apos;" description="Rename compilation unit &apos;Canvas.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src&lt;{Canvas.java" name="TrafficGrid.java" references="false" stamp="1476035306055" version="1.0"/>
+</session>
