@@ -1,33 +1,32 @@
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 public class Frame extends JFrame {
 	
-	private Canvas canvas;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private TrafficGrid trafficGrid;
 	private ToolBar toolBar;
-	private final int frameWidth = 1800;
-	private final int frameHeight = 1500;
+	private final int frameWidth = 800;
+	private final int frameHeight = 700;
 	
 	public Frame() {
 		super("Traffic Management System");		
-		canvas = new Canvas();
+		trafficGrid = new TrafficGrid();
 		toolBar = new ToolBar();
 		
 		toolBar.setDisplayEvents(new DisplayEvents(){
-			public void draw(String text) {
-				canvas.appendText(text);			
+			public void draw() {
+				trafficGrid.repaint();			
 			}			
 		});
 		
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		add(toolBar, BorderLayout.PAGE_START);
-		add(canvas, BorderLayout.CENTER);
+		add(trafficGrid, BorderLayout.CENTER);
 		setSize(frameWidth, frameHeight);
 		setVisible(true);
 	}	

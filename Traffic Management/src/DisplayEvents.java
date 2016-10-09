@@ -1,4 +1,4 @@
 
 public interface DisplayEvents {
-	public void draw(String text);
+	public void draw();
 }
