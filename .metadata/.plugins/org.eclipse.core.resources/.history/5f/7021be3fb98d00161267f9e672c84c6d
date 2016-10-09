@@ -39,13 +39,6 @@ public class ToolBar extends JPanel implements ActionListener {
 				public void run() {
 					if (events != null) {
 						events.draw("Simulation has Started\n");
-						
-						/*
-						 * This is where we will be calling the
-						 * ReadConfiguration file logic, Car logic, Put into
-						 * Statistics Window Logic 
-						 */
-						
 					}				
 				}				
 			};

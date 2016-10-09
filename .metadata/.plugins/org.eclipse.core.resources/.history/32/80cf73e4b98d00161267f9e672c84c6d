@@ -1,6 +1,5 @@
 /* This class will be responsible for drawing the grid 
- * Layouting the streets, avenues, entry points
- * and traffic signals
+ * Layouting the traffic signals
  */
 
 import javax.swing.JPanel;

@@ -7,6 +7,6 @@ public class App {
 			public void run() {
 				new Frame();
 			}
-		});
+		}); //Needed for threading
 	}
 }

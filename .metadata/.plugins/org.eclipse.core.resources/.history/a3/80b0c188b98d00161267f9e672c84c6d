@@ -1,8 +1,3 @@
-/* This class will be responsible for drawing the grid 
- * Layouting the streets, avenues, entry points
- * and traffic signals
- */
-
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import java.awt.BorderLayout;
