@@ -14,8 +14,7 @@ public class ToolBar extends JPanel implements ActionListener {
 	private JButton start;
 	private JButton stop;
 	private DisplayEvents events;
-	public boolean isRunning = false;		
-	private java.util.Timer timer = new java.util.Timer(); 
+	public boolean isRunning = false;		 
 	
 	public ToolBar() {		
 		start = new JButton("Start");
@@ -37,28 +36,21 @@ public class ToolBar extends JPanel implements ActionListener {
 		
 		if (clicked == start) {
 			isRunning = true;
-			java.util.TimerTask task = new java.util.TimerTask() {
 
-				@Override
-				public void run() {
-					if (events != null) {
-						events.draw();
-						
+			if (events != null) {
+			//	events.draw();
+			System.out.println("Simulation Started");			
 						/*
 						 * This is where we will be calling the
 						 * ReadConfiguration file logic, Car logic, Put into
 						 * Statistics Window Logic 
-						 */
-						
-					}				
-				}				
-			};
-			timer.schedule(task, java.util.Calendar.getInstance().getTime(), 500);
+						 */								
+			}				
 		}		
 		else if (isRunning == true) {
-			timer.cancel();
 			if (events != null) {
-				events.draw();
+			//	events.draw();
+				System.out.println("Simulation Stopped");
 			}
 			Statistics stats = new Statistics();
 			stats.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
