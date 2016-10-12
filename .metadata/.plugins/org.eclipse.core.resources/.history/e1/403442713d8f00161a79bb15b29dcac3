@@ -1,0 +1,52 @@
+
+public class TrafficControl {
+	
+	private char[] pointID = new char[8];
+	/*
+	 * ID divided into two 4-char IDs
+	 * first 4-chars [0:3] represents the main source of traffic road ID
+	 * second 4-chars [4:7] represents the turning traffic road ID
+	 * first char of the road ID 1=entrance, 2=exit, 3=street, 4=avenue
+	 */
+	private char forwardDir;
+	private char turningDir;
+	
+	private char control;			//R=Red G=Gree Y=Yellow E=Entrance/Exit
+	
+	public TrafficControl(char[] mainRoad, char[] crossRoad, 
+			char forwardDir, char turningDir, char control) {
+		if(mainRoad.length != 4 || crossRoad.length != 4) {
+			return;
+		}
+		for(int i=0; i<pointID.length; i++){		//copying road IDs as traffic light ID
+			if(i<4)
+				pointID[i]=mainRoad[i];
+			else
+				pointID[i]=crossRoad[i-4];
+		}
+		this.forwardDir = forwardDir;
+		this.turningDir = turningDir;
+		this.control = control;
+	}
+	
+	public char[] getPointID() {
+		return pointID;
+	}
+	public char getForwardDir() {
+		return forwardDir;
+	}
+	public char getTurningDir() {
+		return turningDir;
+	}
+	public char getControl() {
+		return control;
+	}
+	public boolean setControl(char control) {
+		if(pointID[0] != '3' || pointID[0] != '4')
+			return false;
+		else
+			this.control = control;
+		return true;
+	}
+	
+}

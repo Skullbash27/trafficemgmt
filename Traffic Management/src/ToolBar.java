@@ -33,24 +33,17 @@ public class ToolBar extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		JButton clicked = (JButton) event.getSource();
-		
 		if (clicked == start) {
+			start.setEnabled(false);
 			isRunning = true;
-
 			if (events != null) {
-			//	events.draw();
-			System.out.println("Simulation Started");			
-						/*
-						 * This is where we will be calling the
-						 * ReadConfiguration file logic, Car logic, Put into
-						 * Statistics Window Logic 
-						 */								
+				events.draw();		
+				
 			}				
 		}		
 		else if (isRunning == true) {
 			if (events != null) {
 			//	events.draw();
-				System.out.println("Simulation Stopped");
 			}
 			Statistics stats = new Statistics();
 			stats.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
