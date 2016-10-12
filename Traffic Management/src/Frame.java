@@ -9,17 +9,23 @@ public class Frame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private TrafficGrid trafficGrid;
 	private ToolBar toolBar;
-	private final int frameWidth = 800;
+	private final int frameWidth = 900;
 	private final int frameHeight = 700;
+	private Configuration config;
+	private Grid grid;
 	
 	public Frame() {
-		super("Traffic Management System");		
-		trafficGrid = new TrafficGrid();
+		super("Traffic Management System");
+		config  = new Configuration("traffic.conf");
+		grid  = new Grid(config.getNumberOfStreets(), config.getNumberOfAvenues(), 
+				config.getMinimumBlockSide(), config.getMaximumBlockSide());
+		trafficGrid = new TrafficGrid(grid);
 		toolBar = new ToolBar();
 		
 		toolBar.setDisplayEvents(new DisplayEvents(){
 			public void draw() {
-				trafficGrid.repaint();			
+				trafficGrid.start();
+				
 			}			
 		});
 		

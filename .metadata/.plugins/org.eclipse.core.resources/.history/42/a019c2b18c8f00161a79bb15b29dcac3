@@ -1,0 +1,150 @@
+/* This class will be responsible for drawing the grid 
+ * Layouting the streets, avenues, entry points
+ * and traffic signals
+ */
+
+import java.awt.*;
+import java.util.Map;
+
+public class TrafficGrid extends Canvas implements Runnable {
+	
+	/**
+	 * 
+	 */
+	private Grid grid;
+	private Configuration config;
+	private static final long serialVersionUID = 1L;
+	//int ypos[]= new int [5];
+	//char ydir[] = new char[5];
+	int carwidth=4, carlength=9;
+	//int xpos[]= new int[5];
+	//char xdir[] = new char[5];
+	
+	public TrafficGrid(Configuration config, Grid grid) {
+		this.grid = grid;
+		this.config = config;
+		//xpos[0] = 0;		//entrance and exit points
+		//ypos[0] = 0;		//left and top edges of grid
+		//xdir[0] = 0;		//neglected direction at edges of grid
+		//ydir[0] = 0;
+		//for (int i=1; i<5; i++) {
+			//light[i]= new ChangeLight();
+			//carpermin[i]= new CalFlow();
+			//xpos[i]= xpos[i-1] + (int) (100+100*Math.random());	//middle line for vertical road
+			//ypos[i]= ypos[i-1] + (int) (100+100*Math.random());	//middle line for horizontal road
+			//xdir[i] = (i%2) == 0 ? 'E' : 'W';		//determining directions based on iterator i
+			//ydir[i] = (i%2) == 0 ? 'N' : 'S';		//source of traffic directions assumption
+			//brgflag[i]=0;					//intersection not occupied
+		//}
+	}
+	
+	Image offscreen;
+	Dimension offscreensize;
+	Graphics offgraphics;
+	
+	public synchronized void paint(Graphics g) {
+		Dimension d = getSize();
+		if ((offscreen == null) || (d.width != offscreensize.width) || (d.height != offscreensize.height)) {
+				//for window resizing
+				offscreen = createImage(d.width, d.height);
+				offscreensize = d;
+				offgraphics = offscreen.getGraphics();
+		}
+		offgraphics.setColor(Color.black);
+		offgraphics.fillRect(0, 0, d.width, d.height);
+		paintRoad(offgraphics);
+		paintLights(offgraphics);
+		g.drawImage(offscreen, 0, 0, null);
+	}
+	
+	public void paintRoad(Graphics g){
+		Dimension d = getSize();
+		Road tempRoad;
+		for(Map.Entry<char[], Road> entry : grid.roadMap.entrySet()) {
+			tempRoad = entry.getValue();
+			if(tempRoad.getType() == 'S') {
+				//Drawing streets
+				g.setColor(Color.gray);
+				g.fillRect(0, tempRoad.getAccPos()-3*carwidth, d.width, 6*carwidth);
+				g.setColor(Color.WHITE);
+				if(tempRoad.getRoadDirection() == 'E')
+					g.fillRect(0, tempRoad.getAccPos()-3*carwidth, carwidth, 6*carwidth);
+			} else if(tempRoad.getType() == 'A') {
+				//Drawing avenues
+				g.setColor(Color.gray);
+				g.fillRect(tempRoad.getAccPos()-3*carwidth, 0, 6*carwidth, d.height);
+				g.setColor(Color.WHITE);
+				if(tempRoad.getRoadDirection() == 'N')
+					g.fillRect(tempRoad.getAccPos()-3*carwidth, 0, 6*carwidth, carwidth);
+			}
+		}
+		for(Map.Entry<char[], Road> entry : grid.roadMap.entrySet()) {
+			tempRoad = entry.getValue();
+			if(tempRoad.getType() == 'S') {
+				//Drawing streets
+				g.setColor(Color.yellow);
+				g.drawLine(0, tempRoad.getAccPos()-carwidth, d.width, tempRoad.getAccPos()-carwidth);
+				g.drawLine(0, tempRoad.getAccPos()+carwidth, d.width, tempRoad.getAccPos()+carwidth);
+			} else if(tempRoad.getType() == 'A') {
+				//Drawing avenues
+				g.setColor(Color.yellow);
+				g.drawLine(tempRoad.getAccPos()-carwidth, 0, tempRoad.getAccPos()-carwidth, d.height);
+				g.drawLine(tempRoad.getAccPos()+carwidth, 0, tempRoad.getAccPos()+carwidth, d.height);
+			}
+		}
+	}
+	
+	public void paintLights(Graphics g) {
+		//draw traffic lights at intersections as green initial
+		TrafficControl tempPoint;
+		//for(Map.Entry<char[], Road> entry2 : roadMap.entrySet()) {
+		//tempRoadS = entry1.getValue();
+		for(Map.Entry<char[], TrafficControl> entry : grid.trafficPoints.entrySet()) {
+			tempPoint = entry.getValue();
+			if(tempPoint.getStreetControl() != 'E') {
+				System.out.println(tempPoint.getX()+"\t"+tempPoint.getY());
+				switch(tempPoint.getAvenueControl()) {
+					case 'R':	g.setColor(Color.red);
+								break;
+					case 'G':	g.setColor(Color.green);
+								break;
+					case 'Y':	g.setColor(Color.yellow);
+								break;
+				}
+				if(tempPoint.getAvenueDir() == 'N') {
+					g.fillRect(tempPoint.getX()-4*carwidth, 
+							tempPoint.getY()-3*carwidth, carwidth, 6*carwidth);
+				} else if(tempPoint.getAvenueDir() == 'S') {
+					g.fillRect(tempPoint.getX()+3*carwidth, 
+							tempPoint.getY()-3*carwidth, carwidth, 6*carwidth);
+				}
+				switch(tempPoint.getStreetControl()) {
+					case 'R':	g.setColor(Color.red);
+								break;
+					case 'G':	g.setColor(Color.green);
+								break;
+					case 'Y':	g.setColor(Color.yellow);
+								break;
+				}
+				if(tempPoint.getStreetDir() == 'E') {
+					g.fillRect(tempPoint.getX()-3*carwidth, 
+							tempPoint.getY()-4*carwidth, 6*carwidth, carwidth);
+				} else if(tempPoint.getStreetDir() == 'W') {
+					g.fillRect(tempPoint.getX()-3*carwidth, 
+							tempPoint.getY()+3*carwidth, 6*carwidth, carwidth);
+				}
+			}
+		}
+	}
+	
+	public void run() {
+		while (true) {
+			repaint();
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				break;
+			}
+		}
+	}
+}

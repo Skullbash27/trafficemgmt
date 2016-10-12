@@ -4,33 +4,20 @@
  */
 
 import java.awt.*;
+import java.util.Map;
 
 public class TrafficGrid extends Canvas implements Runnable {
 	
 	/**
 	 * 
 	 */
+	private Grid grid;
 	private static final long serialVersionUID = 1L;
-	int ypos[]= new int [5];
-	char ydir[] = new char[5];
-	int carwidth=6, carlength=9;
-	int xpos[]= new int[5];
-	char xdir[] = new char[5];
+	int carwidth=2, carlength=4;
+	Thread gridPaint;
 	
-	public TrafficGrid() {
-		xpos[0] = 0;		//entrance and exit points
-		ypos[0] = 0;		//left and top edges of grid
-		xdir[0] = 0;		//neglected direction at edges of grid
-		ydir[0] = 0;
-		for (int i=1; i<5; i++) {
-			//light[i]= new ChangeLight();
-			//carpermin[i]= new CalFlow();
-			xpos[i]= xpos[i-1] + (int) (100+100*Math.random());	//middle line for vertical road
-			ypos[i]= ypos[i-1] + (int) (100+100*Math.random());	//middle line for horizontal road
-			xdir[i] = (i%2) == 0 ? 'E' : 'W';		//determining directions based on iterator i
-			ydir[i] = (i%2) == 0 ? 'N' : 'S';		//source of traffic directions assumption
-			//brgflag[i]=0;					//intersection not occupied
-		}
+	public TrafficGrid(Grid grid) {
+		this.grid = grid;
 	}
 	
 	Image offscreen;
@@ -54,43 +41,80 @@ public class TrafficGrid extends Canvas implements Runnable {
 	
 	public void paintRoad(Graphics g){
 		Dimension d = getSize();
-		//drawing streets and avenues
-		g.setColor(Color.gray);
-		for(int i = 1; i<4; i++) {
-			g.fillRect(xpos[i]-3*carwidth, 0, 6*carwidth, d.height);
-			g.fillRect(0, ypos[i]-3*carwidth, d.width, 6*carwidth);
+		Road tempRoad;
+		for(Map.Entry<char[], Road> entry : grid.roadMap.entrySet()) {
+			tempRoad = entry.getValue();
+			if(tempRoad.getType() == 'S') {
+				//Drawing streets
+				g.setColor(Color.gray);
+				g.fillRect(0, carlength*tempRoad.getAccPos()-3*carwidth, d.width, 6*carwidth);
+				g.setColor(Color.WHITE);
+				if(tempRoad.getRoadDirection() == 'E')
+					g.fillRect(0, carlength*tempRoad.getAccPos()-3*carwidth, carwidth, 6*carwidth);
+			} else if(tempRoad.getType() == 'A') {
+				//Drawing avenues
+				g.setColor(Color.gray);
+				g.fillRect(carlength*tempRoad.getAccPos()-3*carwidth, 0, 6*carwidth, d.height);
+				g.setColor(Color.WHITE);
+				if(tempRoad.getRoadDirection() == 'N')
+					g.fillRect(carlength*tempRoad.getAccPos()-3*carwidth, 0, 6*carwidth, carwidth);
+			}
 		}
-		//drawing lanes
-		g.setColor(Color.yellow);
-		for(int i = 1; i<4; i++) {
-			g.drawLine(xpos[i]-carwidth, 0, xpos[i]-carwidth, d.height);
-			g.drawLine(xpos[i]+carwidth, 0, xpos[i]+carwidth, d.height);
-			g.drawLine(0, ypos[i]-carwidth, d.width, ypos[i]-carwidth);
-			g.drawLine(0, ypos[i]+carwidth, d.width, ypos[i]+carwidth);
+		for(Map.Entry<char[], Road> entry : grid.roadMap.entrySet()) {
+			tempRoad = entry.getValue();
+			if(tempRoad.getType() == 'S') {
+				//Drawing streets
+				g.setColor(Color.yellow);
+				g.drawLine(0, carlength*tempRoad.getAccPos()-carwidth, d.width, 
+						carlength*tempRoad.getAccPos()-carwidth);
+				g.drawLine(0, carlength*tempRoad.getAccPos()+carwidth, d.width, 
+						carlength*tempRoad.getAccPos()+carwidth);
+			} else if(tempRoad.getType() == 'A') {
+				//Drawing avenues
+				g.setColor(Color.yellow);
+				g.drawLine(carlength*tempRoad.getAccPos()-carwidth, 0, 
+						carlength*tempRoad.getAccPos()-carwidth, d.height);
+				g.drawLine(carlength*tempRoad.getAccPos()+carwidth, 0, 
+						carlength*tempRoad.getAccPos()+carwidth, d.height);
+			}
 		}
 	}
 	
 	public void paintLights(Graphics g) {
-		g.setColor(Color.WHITE);
-		for(int i = 1; i<4; i++) {
-			if(xdir[i] == 'E')
-				g.fillRect(xpos[i]-3*carwidth, 0, 6*carwidth, carwidth);
-			if(ydir[i] == 'N')
-				g.fillRect(0, ypos[i]-3*carwidth, carwidth, 6*carwidth);
-		}
 		//draw traffic lights at intersections as green initial
-		g.setColor(Color.GREEN);
-		for(int i = 1; i<4; i++) {
-			for(int j = 1; j<4; j++) {
-				if(ydir[i] == 'N') {
-					g.fillRect(xpos[j]-4*carwidth, ypos[i]-3*carwidth, carwidth, 6*carwidth);
-				} else if(ydir[i] == 'S') {
-					g.fillRect(xpos[j]+3*carwidth, ypos[i]-3*carwidth, carwidth, 6*carwidth);
+		TrafficControl tempPoint;
+		for(Map.Entry<char[], TrafficControl> entry : grid.trafficPoints.entrySet()) {
+			tempPoint = entry.getValue();
+			if(tempPoint.getStreetControl() != 'E') {
+				switch(tempPoint.getAvenueControl()) {
+					case 'R':	g.setColor(Color.red);
+								break;
+					case 'G':	g.setColor(Color.green);
+								break;
+					case 'Y':	g.setColor(Color.yellow);
+								break;
 				}
-				if(xdir[i] == 'E') {
-					g.fillRect(xpos[i]-3*carwidth, ypos[j]-4*carwidth, 6*carwidth, carwidth);
-				} else if(xdir[i] == 'W') {
-					g.fillRect(xpos[i]-3*carwidth, ypos[j]+3*carwidth, 6*carwidth, carwidth);
+				if(tempPoint.getAvenueDir() == 'N') {
+					g.fillRect(carlength*tempPoint.getX()-3*carwidth, 
+							carlength*tempPoint.getY()-4*carwidth, 6*carwidth, carwidth);
+				} else if(tempPoint.getAvenueDir() == 'S') {
+					g.fillRect(carlength*tempPoint.getX()-3*carwidth, 
+							carlength*tempPoint.getY()+3*carwidth, 6*carwidth, carwidth);
+				}
+				switch(tempPoint.getStreetControl()) {
+					case 'R':	g.setColor(Color.red);
+								break;
+					case 'G':	g.setColor(Color.green);
+								break;
+					case 'Y':	g.setColor(Color.yellow);
+								break;
+				}
+				if(tempPoint.getStreetDir() == 'E') {
+					g.fillRect(carlength*tempPoint.getX()-4*carwidth, 
+							carlength*tempPoint.getY()-3*carwidth, carwidth, 6*carwidth);
+				} else if(tempPoint.getStreetDir() == 'W') {
+					g.fillRect(carlength*tempPoint.getX()+3*carwidth, 
+							carlength*tempPoint.getY()-3*carwidth, carwidth, 6*carwidth);
 				}
 			}
 		}
@@ -100,10 +124,19 @@ public class TrafficGrid extends Canvas implements Runnable {
 		while (true) {
 			repaint();
 			try {
-				Thread.sleep(50);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				break;
 			}
 		}
+	}
+	
+	public void start() {
+		gridPaint = new Thread(this);
+		gridPaint.start();
+	}
+	
+	public void stop() {
+		gridPaint.interrupt();
 	}
 }

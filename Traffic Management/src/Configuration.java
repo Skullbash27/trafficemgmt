@@ -36,10 +36,10 @@ public class Configuration {
 	// Grid class:
 	//	Number of Streets and Avenues
 	//	Maximum and Minimum Block Side Length in c unit
-	private int NumberOfStreets = 10;
-	private int NumberOfAvenues = 10;
-	private int MaximumBlockSide = 500;
-	private int MinimumBlockSide = 800;
+	private int NumberOfStreets = 5;
+	private int NumberOfAvenues = 7;
+	private int MaximumBlockSide = 40;
+	private int MinimumBlockSide = 15;
 		
 	// Road class:
 	//	Number of Forward and Turning Lanes
@@ -51,9 +51,9 @@ public class Configuration {
 	//	Maximum Red Time could be Maximum Green Time + Yellow Time
 	//	Yellow Time in seconds
 	//	Intersection light initial status (TBD)
-	private int MaxRedTime = 60;
-	private int MaxGreenTime = 40;
-	private int YellowTime = 5;
+	private int MaxRedTime = 7000;
+	private int MaxGreenTime = 5000;
+	private int YellowTime = 2000;
 		
 	// Car class:
 	//	Maximum Car Speed in c/second unit
@@ -89,6 +89,46 @@ public class Configuration {
 			System.out.println("Problem reading Configuration File lines.");
 			System.exit(0);
 		}
+	}
+	
+	public int getLambda() {
+		return Lambda;
+	}
+	public int getNumberOfCars() {
+		return NumberOfCars;
+	}
+	public int getNumberOfStreets() {
+		return NumberOfStreets;
+	}
+	public int getNumberOfAvenues() {
+		return NumberOfAvenues;
+	}
+	public int getMaximumBlockSide() {
+		return MaximumBlockSide;
+	}
+	public int getMinimumBlockSide() {
+		return MinimumBlockSide;
+	}
+	public int getNumberOfForwardLanes() {
+		return NumberOfForwardLanes;
+	}
+	public int getNumberOfTurningLanes() {
+		return NumberOfTurningLanes;
+	}
+	public int getMaxRedTime() {
+		return MaxRedTime;
+	}
+	public int getMaxGreenTime() {
+		return MaxGreenTime;
+	}
+	public int getYellowTime() {
+		return YellowTime;
+	}
+	public int getCarSpeed() {
+		return CarSpeed;
+	}
+	public int getCarAcceleration() {
+		return CarAcceleration;
 	}
 	
 	private void loadEntry(String name, int value, int line_number) {
