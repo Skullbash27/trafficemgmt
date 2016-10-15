@@ -1,0 +1,50 @@
+
+public class Schedule implements Runnable{
+	
+	private static int greenTime = 5000;
+	private static int yellowTime = 2000;
+	private int sleepTime;
+	
+	char scheduleType = 'D';
+	/*
+	 * D=dumb scheduling
+	 * S=self scheduling
+	 * C=coordinated scheduling
+	 * V=convoy scheduling
+	 */
+	
+	public Schedule(char scheduleType, int greenTime, int yellowTime) {
+		
+	}
+	
+	
+	
+	@Override
+	public void run() {
+		while (isRunning) {
+			relax();
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				break;
+			}
+		}
+	}
+	
+	public void start() {
+		gridPaint = new Thread(this);
+		isRunning = true;
+		gridPaint.start();
+	}
+	
+	public void stop() {
+		gridPaint.interrupt();
+		isRunning = false;
+	}
+	public void start() {
+		
+	}
+	public void pause() {
+		
+	}
+}

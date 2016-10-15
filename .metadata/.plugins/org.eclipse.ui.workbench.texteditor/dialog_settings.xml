@@ -2,22 +2,25 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="" key="selection"/>
+		<item value="System" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
-			<item value="setEPoints"/>
-			<item value="system.out.println"/>
-			<item value="copyofrange"/>
-			<item value="remove"/>
-			<item value="System"/>
 			<item value="system"/>
-			<item value="of"/>
-			<item value="_"/>
+			<item value="speed"/>
+			<item value="sleep"/>
+			<item value="paint"/>
+			<item value="rand"/>
+			<item value="get"/>
+			<item value="&apos;, &apos;"/>
+			<item value="green"/>
 		</list>
 		<list key="replacehistory">
+			<item value="&apos;,&apos;"/>
+			<item value="TrafficPoint"/>
+			<item value="Point"/>
 			<item value="Of"/>
 			<item value=""/>
 		</list>

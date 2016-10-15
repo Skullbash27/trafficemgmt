@@ -36,8 +36,8 @@ public class Configuration {
 	// Grid class:
 	//	Number of Streets and Avenues
 	//	Maximum and Minimum Block Side Length in c unit
-	private int NumberOfStreets = 5;
-	private int NumberOfAvenues = 7;
+	private int NumberOfStreets = 3;
+	private int NumberOfAvenues = 3;
 	private int MaximumBlockSide = 40;
 	private int MinimumBlockSide = 15;
 		
