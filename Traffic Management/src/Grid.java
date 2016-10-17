@@ -1,159 +1,38 @@
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 public class Grid {
 	
-	HashMap<char[], TrafficControl> trafficPoints = new HashMap<char[], TrafficControl>();
-	
-	HashMap<char[], Road> roadMap = new HashMap<char[], Road>();
-	
-	private int[] streetDist;
-	private int[] avenueDist;
-	
-	public Grid(int NumberOfStreets, int NumberOfAvenues, int MinBlockSide, int MaxBlockSide) {
+	public Grid(int NumberOfStreets, int NumberOfAvenues, 
+			int MinBlockSide, int MaxBlockSide) {
 		if(NumberOfStreets >= 999 || NumberOfAvenues >= 999) {
 			System.out.println("Numbers are outside program capacity");
 			return;
 		}
 		System.out.println("Creating the grid");
 		System.out.println("Initializing roads, entrance and exit points");
-		Road tempRoadS, tempRoadA, tempRoad;
-		TrafficControl tempPoint;
-		char[] roadIDS = new char[4];
-		char[] roadIDA = new char[4];
-		char[] roadDir = new char[2];
-		int accPos = 0;
-		streetDist = new int[NumberOfStreets+2];
-		streetDist[0] = 0;
-		for(int i = 0; i<NumberOfStreets; i++) {		//declaring and initializing Streets
-			roadIDS = getStreetID(i+1);
-			roadDir[0] = (i%2==0)? 'E':'W';
-			streetDist[i+1]= (int) (MinBlockSide+(MaxBlockSide-MinBlockSide)*Math.random());
-			accPos += streetDist[i+1];	
-			tempRoadS = new Road(roadIDS, roadDir[0], accPos);
-			tempRoadS.setRoadType('S');
-			roadMap.put(roadIDS, tempRoadS);
-		}
-		streetDist[NumberOfStreets+1] = (int) (MinBlockSide+(MaxBlockSide-MinBlockSide)*Math.random());
-		
-		accPos = 0;
-		avenueDist = new int[NumberOfAvenues+2];
-		avenueDist[0] = 0;
-		for(int i = 0; i<NumberOfAvenues; i++) {		//declaring and initializing Avenues
-			roadIDA = getAvenueID(i+1);
-			roadDir[1] = (i%2==0)? 'N':'S';
-			avenueDist[i+1]= (int) (MinBlockSide+(MaxBlockSide-MinBlockSide)*Math.random());
-			accPos += avenueDist[i+1];	
-			tempRoadA = new Road(roadIDA, roadDir[1], accPos);
-			tempRoadA.setRoadType('A');
-			roadMap.put(roadIDA, tempRoadA);
-		}
-		avenueDist[NumberOfAvenues+1] = (int) (MinBlockSide+(MaxBlockSide-MinBlockSide)*Math.random());
-
-		//declaring and initializing street and avenue entrance and exit points
-		char[] pointChar;
-		int[] xy = new int[] {0, 0};
-		for (Map.Entry<char[], Road> entry : roadMap.entrySet()) {
-			//declaring and initializing street and avenue entrance and exit points 
-			tempRoad = entry.getValue();
-			if(tempRoad.getType() == 'S') {
-				roadIDA = new char[]{'0','0','0','0'};
-				roadIDS = Arrays.copyOfRange(tempRoad.getRoadID(), 0, 4);
-				roadIDS[0] = '1';
-				roadDir[0] = tempRoad.getRoadDirection();
-				roadDir[1] = roadDir[0];
-				if(roadDir[0] == 'E') {
-					xy = new int[]{avenueDist[NumberOfAvenues+1], tempRoad.getAccPos()};
-				} else if(roadDir[0] == 'W') {
-					xy = new int[]{0, tempRoad.getAccPos()};
-				}
-				pointChar = new char[]{'E','N'};
-				tempPoint = new TrafficControl(roadIDS, roadIDA, roadDir, 
-						pointChar, xy);
-				trafficPoints.put(tempPoint.getPointID(), tempPoint);
-				roadIDS[0] = '2';
-				if(roadDir[0] == 'W') {
-					xy = new int[]{0, tempRoad.getAccPos()};
-				} else if(roadDir[0] == 'E') {
-					xy = new int[]{avenueDist[NumberOfAvenues+1], tempRoad.getAccPos()};
-				}
-				pointChar = new char[]{'E','X'};
-				tempPoint = new TrafficControl(roadIDS, roadIDA, roadDir, 
-						pointChar, xy);
-				trafficPoints.put(tempPoint.getPointID(), tempPoint);
-			} else if(tempRoad.getType() == 'A') {
-				//declaring and initializing avenue entrance and exit points
-				roadIDA = Arrays.copyOfRange(tempRoad.getRoadID(), 0, 4);
-				roadIDA[0] = '1';
-				roadIDS = new char[]{'0','0','0','0'};
-				roadDir[1] = tempRoad.getRoadDirection();
-				roadDir[0] = roadDir[1];
-				if(roadDir[1] == 'N') {
-					xy = new int[]{tempRoad.getAccPos(), 0};
-				} else if(roadDir[1] == 'S') {
-					xy = new int[]{tempRoad.getAccPos(), streetDist[NumberOfStreets+1]};
-				}
-				pointChar = new char[]{'E','N'};
-				tempPoint = new TrafficControl(roadIDS, roadIDA, roadDir, 
-						pointChar, xy);
-				trafficPoints.put(tempPoint.getPointID(), tempPoint);
-				roadIDA[0] = '2';
-				if(roadDir[1] == 'S') {
-					xy = new int[]{tempRoad.getAccPos(), streetDist[NumberOfStreets+1]};
-				} else if(roadDir[1] == 'N') {
-					xy = new int[]{tempRoad.getAccPos(), 0};
-				}
-				pointChar = new char[]{'E','X'};
-				tempPoint = new TrafficControl(roadIDS, roadIDA, roadDir, 
-						pointChar, xy);
-				trafficPoints.put(tempPoint.getPointID(), tempPoint);
-				//System.out.println(roadIDA);
-			}
-		}
-		System.out.println("Initializing Intersection points");
-		pointChar = new char[]{'R','R'};
-		for(Map.Entry<char[], Road> entry1 : roadMap.entrySet()) {
-			for(Map.Entry<char[], Road> entry2 : roadMap.entrySet()) {
-				tempRoadS = entry1.getValue();
-				tempRoadA = entry2.getValue();
-				if(entry1.getValue().getType() == 'S' && entry2.getValue().getType() == 'A') {
-					roadIDS = Arrays.copyOfRange(tempRoadS.getRoadID(), 0, 4);
-					roadIDA = Arrays.copyOfRange(tempRoadA.getRoadID(), 0, 4);
-					//declaration and initialization of intersection points
-					xy[0] = tempRoadA.getAccPos();
-					xy[1] = tempRoadS.getAccPos();
-					roadDir[0] = tempRoadS.getRoadDirection();
-					roadDir[1] = tempRoadA.getRoadDirection();
-					tempPoint = new TrafficControl(roadIDS, roadIDA, roadDir, 
-							pointChar, xy);
-					trafficPoints.put(tempPoint.getPointID(), tempPoint);
-				}
-			}
-		}
+		initRoads(NumberOfStreets, NumberOfAvenues, 
+				MinBlockSide, MaxBlockSide);
+		initControlPoints(Road.getEntrySet());
 	}
 	
-	private static char[] getStreetID(int i) {
-		char[] roadIDS = getRoadIDFromInt(i);
-		roadIDS[0] = '3';	//first char of the road ID 3=street
-		return roadIDS;
-	}
-	private static char[] getAvenueID(int i) {
-		char[] roadIDA = getRoadIDFromInt(i);
-		roadIDA[0] = '4';
-		return roadIDA;
+	private void initRoads(int NumberOfStreets, int NumberOfAvenues, 
+			int MinBlockSide, int MaxBlockSide) {
+		boolean initialized = Road.addRoads(NumberOfStreets, 
+				MinBlockSide, MaxBlockSide, 'S');
+		if(!initialized) {
+			System.out.println("Streets not initialized properly");
+		}
+		initialized = Road.addRoads(NumberOfAvenues, 
+				MinBlockSide, MaxBlockSide, 'A');
 	}
 	
-	private static char[] getRoadIDFromInt(int i) {
-		char[] roadID = new char[4];
-		char[] roadNumber = String.valueOf(i).toCharArray();
-		int k=0;
-		for(int j=0; j<(3-roadNumber.length); j++) {	//zero pending to hundreds and tens position
-			roadID[j+1]='0';
-			k++;
+	private void initControlPoints(Set<Map.Entry<char[] ,Road>> set) {
+		boolean initialized = TrafficPoint.addControlPoits(set);
+		if(!initialized) {
+			System.out.println("Entrance and Exit Points and intersections"
+					+ " not initialized properly");
 		}
-		for(int j=k; j<3; j++)
-			roadID[j+1]=roadNumber[j-k];
-		return roadID;
 	}
 }

@@ -1,0 +1,71 @@
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Random;
+
+public class Car {
+	private static int carCount = 1;
+	static HashMap <char[], Car> allCars = new HashMap<char[], Car>();
+	
+	int[] xy = new int[]{0, 0};	//x, y position in grid
+	TrafficControl entrancePoint;
+	TrafficControl exitPoint;
+	TrafficControl turningPoint1;			//TBD intersection ID only or whole object
+	TrafficControl turningPoint2;			//if whole object then function equals to be implemented
+	int[] dxy = new int[2];		//horizontal and vertical speed
+	Road road;
+	int lane;
+	char dir;
+	char[] carID = new char[8];
+	/*
+	 * char[0]=entrance direction
+	 * char[1]=exit direction
+	 * char[2]=number of turns
+	 * char[3:7]=unique ID
+	 */
+	
+	private Car(int ID, TrafficControl entrance, TrafficControl exit) {
+		this.carID = Arrays.copyOfRange(getCarIDFromInt(ID), 0, 8);
+		this.carID[0] = entrance.getStreetDir();
+		this.carID[1] = exit.getAvenueDir();
+		if(carID[0] == carID[1])		//for the time being
+			carID[2] = '0';
+		else
+			carID[2] = '0';
+		this.entrancePoint = entrance;
+		this.exitPoint = exit;
+	}
+	
+	public static void addCars(int numberOfCars, Grid grid) {
+		Car tempCar;
+		//TrafficControl entrance, exit;
+		char[] roadID;
+		Road tempRoad;
+		TrafficControl entrance, exit;
+		Object[] roadKeysRand = grid.roadMap.keySet().toArray();
+		int i=0;
+		while(i<numberOfCars) {
+			roadID = (char[]) roadKeysRand[new Random().nextInt(roadKeysRand.length)];
+			tempRoad = grid.roadMap.get(roadID);
+			entrance = tempRoad.getEntrancePoint();
+			exit = tempRoad.getExitPoint();
+			tempCar = new Car(carCount, entrance, exit);
+			allCars.put(tempCar.carID, tempCar);
+			entrance.carQueue.add(tempCar);
+			carCount++;
+			i++;
+		}
+	}
+	
+	private static char[] getCarIDFromInt(int i) {
+		char[] carID = new char[8];
+		char[] carNumber = String.valueOf(i).toCharArray();
+		int k=0;
+		for(int j=0; j<(8-carNumber.length); j++) {	//zero pending to hundreds and tens position
+			carID[j]='0';
+			k++;
+		}
+		for(int j=k; j<8; j++)
+			carID[j]=carNumber[j-k];
+		return carID;
+	}
+}

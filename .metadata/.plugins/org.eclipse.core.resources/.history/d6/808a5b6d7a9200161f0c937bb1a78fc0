@@ -1,0 +1,47 @@
+
+public class Schedule implements Runnable{
+	
+	private static int greenTime = 5000;
+	private static int yellowTime = 2000;
+	private int sleepTime;
+	
+	private boolean isRunning = false;
+	
+	private Thread lightSchedule;
+	char scheduleType = 'D';
+	/*
+	 * D=dumb scheduling
+	 * S=self scheduling
+	 * C=coordinated scheduling
+	 * V=convoy scheduling
+	 */
+	
+	public Schedule(char scheduleType, int greenTime, int yellowTime) {
+		this.scheduleType = scheduleType;
+		this.greenTime = greenTime;
+		this.yellowTime = yellowTime;
+	}
+	
+	
+	
+	@Override
+	public void run() {
+		while (isRunning) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				break;
+			}
+		}
+	}
+	
+	public void start() {
+		lightSchedule = new Thread(this);
+		isRunning = true;
+		lightSchedule.start();
+	}
+	public void pause() {
+		lightSchedule.interrupt();
+		isRunning = false;
+	}
+}
