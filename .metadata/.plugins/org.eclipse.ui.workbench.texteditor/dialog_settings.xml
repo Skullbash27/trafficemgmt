@@ -2,22 +2,24 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="System" key="selection"/>
+		<item value="" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="abs"/>
+			<item value="private"/>
+			<item value="carwidth"/>
+			<item value="carlength"/>
 			<item value="system"/>
 			<item value="speed"/>
 			<item value="sleep"/>
 			<item value="paint"/>
-			<item value="rand"/>
-			<item value="get"/>
-			<item value="&apos;, &apos;"/>
-			<item value="green"/>
 		</list>
 		<list key="replacehistory">
+			<item value="protected"/>
+			<item value="CarWidth"/>
 			<item value="&apos;,&apos;"/>
 			<item value="TrafficPoint"/>
 			<item value="Point"/>

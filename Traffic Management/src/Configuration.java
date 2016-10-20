@@ -30,36 +30,40 @@ public class Configuration {
 	// Simulation class:
 	//	Exponential Car Insertion Rate
 	//	Number of Cars
-	private int Lambda = 100;
-	private int NumberOfCars = 1000;
+	protected int Lambda = 100;
+	protected int NumberOfCars = 1000;
 		
 	// Grid class:
 	//	Number of Streets and Avenues
 	//	Maximum and Minimum Block Side Length in c unit
-	private int NumberOfStreets = 3;
-	private int NumberOfAvenues = 3;
-	private int MaximumBlockSide = 40;
-	private int MinimumBlockSide = 15;
+	protected int NumberOfStreets = 3;
+	protected int NumberOfAvenues = 3;
+	protected int MaximumBlockSide = 40;
+	protected int MinimumBlockSide = 15;
 		
 	// Road class:
 	//	Number of Forward and Turning Lanes
-	private int NumberOfForwardLanes = 2;
-	private int NumberOfTurningLanes = 1;
+	protected int NumberOfForwardLanes = 2;
+	protected int NumberOfTurningLanes = 1;
 		
 	// TrafficLight class
 	//	Maximum Red and Green time in seconds
 	//	Maximum Red Time could be Maximum Green Time + Yellow Time
 	//	Yellow Time in seconds
 	//	Intersection light initial status (TBD)
-	private int MaxRedTime = 7000;
-	private int MaxGreenTime = 5000;
-	private int YellowTime = 2000;
+	protected int MaxRedTime = 7000;
+	protected int MaxGreenTime = 5000;
+	protected int YellowTime = 2000;
 		
 	// Car class:
 	//	Maximum Car Speed in c/second unit
 	//	Car Acceleration in c/second2 unit
-	private int CarSpeed = 10;
-	private int CarAcceleration = 1;
+	//	Car length and width in pixels
+	protected int CarSpeed = 10;
+	protected int CarAcceleration = 1;
+	protected int CarLength = 6;
+	protected int CarWidth = 3;
+	protected int Clearance = 2;
 	
 	public Configuration(String configFile) {
 		BufferedReader reader = null;
@@ -91,46 +95,6 @@ public class Configuration {
 		}
 	}
 	
-	public int getLambda() {
-		return Lambda;
-	}
-	public int getNumberOfCars() {
-		return NumberOfCars;
-	}
-	public int getNumberOfStreets() {
-		return NumberOfStreets;
-	}
-	public int getNumberOfAvenues() {
-		return NumberOfAvenues;
-	}
-	public int getMaximumBlockSide() {
-		return MaximumBlockSide;
-	}
-	public int getMinimumBlockSide() {
-		return MinimumBlockSide;
-	}
-	public int getNumberOfForwardLanes() {
-		return NumberOfForwardLanes;
-	}
-	public int getNumberOfTurningLanes() {
-		return NumberOfTurningLanes;
-	}
-	public int getMaxRedTime() {
-		return MaxRedTime;
-	}
-	public int getMaxGreenTime() {
-		return MaxGreenTime;
-	}
-	public int getYellowTime() {
-		return YellowTime;
-	}
-	public int getCarSpeed() {
-		return CarSpeed;
-	}
-	public int getCarAcceleration() {
-		return CarAcceleration;
-	}
-	
 	private void loadEntry(String name, int value, int line_number) {
 		if(name.equals("Lambda"))
 			Lambda = value;
@@ -158,7 +122,13 @@ public class Configuration {
 			CarSpeed = value;
 		else if(name.equals("CarAcceleration"))
 			CarAcceleration = value;
-		else 
+		else if(name.equals("CarLength"))
+			CarLength = value;
+		else if(name.equals("CarWidth"))
+			CarWidth = value;
+		else if(name.equals("Clearance"))
+			Clearance = value;
+		else
 			System.out.println("Config file parsing error on line " + line_number);
 		return;
 	}
@@ -177,5 +147,7 @@ public class Configuration {
 		System.out.println("Yellow Time\t\t" + YellowTime);
 		System.out.println("Car Speed\t\t" + CarSpeed);
 		System.out.println("Car Acceleration\t" + CarAcceleration);
+		System.out.println("Car Length in pixels\t" + CarLength);
+		System.out.println("Car Width in pixles\t" + CarWidth);
 	}
 }
