@@ -1,11 +1,11 @@
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 public class Grid {
 	
 	public Grid(int NumberOfStreets, int NumberOfAvenues, 
-			int MinBlockSide, int MaxBlockSide) {
+			int MinBlockSide, int MaxBlockSide, 
+			int CarLength) {
 		if(NumberOfStreets >= 999 || NumberOfAvenues >= 999) {
 			System.out.println("Numbers are outside program capacity");
 			return;
@@ -13,19 +13,20 @@ public class Grid {
 		System.out.println("Creating the grid");
 		System.out.println("Initializing roads, entrance and exit points");
 		initRoads(NumberOfStreets, NumberOfAvenues, 
-				MinBlockSide, MaxBlockSide);
+				MinBlockSide, MaxBlockSide, CarLength);
 		initControlPoints(Road.getEntrySet());
 	}
 	
 	private void initRoads(int NumberOfStreets, int NumberOfAvenues, 
-			int MinBlockSide, int MaxBlockSide) {
+			int MinBlockSide, int MaxBlockSide, int CarLength) {
 		boolean initialized = Road.addRoads(NumberOfStreets, 
-				MinBlockSide, MaxBlockSide, 'S');
-		if(!initialized) {
+				MinBlockSide*CarLength, MaxBlockSide*CarLength, 'S');
+		if(!initialized)
 			System.out.println("Streets not initialized properly");
-		}
 		initialized = Road.addRoads(NumberOfAvenues, 
-				MinBlockSide, MaxBlockSide, 'A');
+				MinBlockSide*CarLength, MaxBlockSide*CarLength, 'A');
+		if(!initialized)
+			System.out.println("Avenues not initialized properly");
 	}
 	
 	private void initControlPoints(Set<Map.Entry<char[] ,Road>> set) {

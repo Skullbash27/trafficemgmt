@@ -28,11 +28,11 @@ public class Schedule implements Runnable{
 		if(scheduleType == 'D') {
 			for(Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
 				tempPoint = entry.getValue();
-				if(tempPoint.getControl()[0] != 'E') { 		//not entrance or exit
+				if(tempPoint.control[0] != 'E') { 		//not entrance or exit
 					tempPoint.nextControl();
-					if(tempPoint.getControl()[0] == 'G' || tempPoint.getControl()[1] == 'G')
+					if(tempPoint.control[0] == 'G' || tempPoint.control[1] == 'G')
 						sleepTime = greenTime;
-					else if(tempPoint.getControl()[0] == 'Y' || tempPoint.getControl()[1] == 'Y')
+					else if(tempPoint.control[0] == 'Y' || tempPoint.control[1] == 'Y')
 						sleepTime = yellowTime;
 				}
 			}
@@ -54,7 +54,8 @@ public class Schedule implements Runnable{
 	}
 	
 	public void start() {
-		lightSchedule = new Thread(this);
+		if(lightSchedule == null)
+			lightSchedule = new Thread(this);
 		isRunning = true;
 		lightSchedule.start();
 	}

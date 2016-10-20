@@ -11,13 +11,15 @@ import javax.swing.ImageIcon;
 public class PaintGrid extends Canvas implements Runnable {
 	
 	private static final long serialVersionUID = 1L;
-	int carwidth=3, carlength=6;
-	Thread gridPaint;
-	boolean isRunning = false;
+	private int CarLength = 6, CarWidth=3;
+	private Thread gridPaint;
+	private boolean isRunning = false;
 	
 	private Image northImg, southImg, eastImg, westImg;
 	
-	public PaintGrid() {
+	public PaintGrid(int CarLength, int CarWidth) {
+		this.CarLength = CarLength;
+		this.CarWidth = CarWidth;
 		loadImages();
 	}
 	
@@ -28,39 +30,64 @@ public class PaintGrid extends Canvas implements Runnable {
 		TrafficPoint tempPoint;
 		Car tempCar = null;
 		int speed = 0;
+		boolean wait = false;
 		for(Map.Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
 			tempPoint = entry.getValue();
 			//check if entrance point && road in front clear
-			if(!tempPoint.emptyQueue())
-				tempCar = tempPoint.Dequeue();
-			if(tempCar != null) {				//make sure queue not empty
-				tempCar.setXY(Arrays.copyOfRange(tempPoint.getXY(), 0, 2));
-				tempCar.setDirection(tempPoint.getDirection()[0]);
-				//direction same for entrance and exit points
+			if(!tempPoint.emptyQueue()) {
+				//see if a car is blocking entrance
+				for(Map.Entry<char[], Car> entry2 : Car.getEntrySet()) {
+					wait = Math.abs(tempPoint.distance(entry2.getValue())) < (CarLength+3);
+					//replace 2 with car clearance pixels from configuration
+					if(wait) break;
+				}
+				if(!wait) {
+					tempCar = tempPoint.Dequeue();
+					tempCar.xy = Arrays.copyOfRange(tempPoint.xy, 0, 2);
+					tempCar.setDirection(tempPoint.roadDir[0]);
+					//direction same for entrance and exit points
+					tempCar.nextPoint = (tempPoint.nextStreet == null)? 
+							tempPoint.nextAvenue : tempPoint.nextStreet;
+					tempCar.phase = 'M';
+				}
 			}
-			tempCar = null;
+			wait = false;
 		}
 		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
+			if(entry.getValue().phase != 'M') continue;		//if car not moving
 			tempCar = entry.getValue();
-			speed = 1;
-			if(!tempCar.getXY().equals(new int[]{-1, -1})) {
-				if(tempCar.getDirection() == 'N')
+			for(Map.Entry<char[], Car> entry1 : Car.getEntrySet()) {
+				if(entry1.getValue().phase != 'M') continue;	//if car not moving
+				if(tempCar.road != entry1.getValue().road) continue;
+				//replace constant with clearance
+				if(tempCar.dir == 'N' || tempCar.dir == 'W') {
+					if(tempCar.distance(entry1.getValue()) < 0)
+						wait = Math.abs(tempCar.distance(entry1.getValue())) < (CarLength+5);
+				} else if(tempCar.dir == 'S' || tempCar.dir == 'E') {
+					if(tempCar.distance(entry1.getValue()) > 0)
+						wait = Math.abs(tempCar.distance(entry1.getValue())) < (CarLength+5);
+				}
+				if(wait) break;
+			}
+			if(!wait) {
+				speed = 3;
+				if(tempCar.dir == 'N')
 					tempCar.moveXY(new int[]{0, speed});
-				else if(tempCar.getDirection() == 'S')
+				else if(tempCar.dir == 'S')
 					tempCar.moveXY(new int[]{0, -1*speed});
-				else if(tempCar.getDirection() == 'E')
+				else if(tempCar.dir == 'E')
 					tempCar.moveXY(new int[]{-1*speed, 0});
-				else if(tempCar.getDirection() == 'W')
+				else if(tempCar.dir == 'W')
 					tempCar.moveXY(new int[]{speed, 0});
 			}
+			wait = false;
 		}
 		repaint();
 	}
 	
-	
 	public synchronized void paint(Graphics g) {
-		Dimension d = new Dimension(Road.getXAccPos()*carlength, 
-				Road.getYAccPos()*carlength);
+		Dimension d = new Dimension(Road.xAccumulativePosition, 
+				Road.yAccumulativePosition);
 		if (offscreen == null) {
 				//for window resizing
 				offscreen = createImage(d.width, d.height);
@@ -74,63 +101,63 @@ public class PaintGrid extends Canvas implements Runnable {
 		g.drawImage(offscreen, 0, 0, null);
 	}
 	
-	public void paintRoad(Graphics g){
+	private void paintRoad(Graphics g){
 		Dimension d = getSize();
 		Road tempRoad;
 		for(Map.Entry<char[], Road> entry : Road.getEntrySet()) {
 			tempRoad = entry.getValue();
-			if(tempRoad.getType() == 'S') {
+			if(tempRoad.roadType == 'S') {
 				//Drawing streets
 				g.setColor(Color.gray);
-				g.fillRect(0, carlength*tempRoad.getAccPos()-3*carwidth, 
-						d.width, 6*carwidth);
+				g.fillRect(0, tempRoad.accumulativePosition-3*CarWidth, 
+						d.width, 6*CarWidth);
 				g.setColor(Color.WHITE);
-				if(tempRoad.getRoadDirection() == 'E')
-					g.drawImage(eastImg, Road.getXAccPos()*carlength-30, 
-							tempRoad.getAccPos()*carlength-8, null);
-				else if(tempRoad.getRoadDirection() == 'W')
-					g.drawImage(westImg, 0, tempRoad.getAccPos()*carlength-8, null);
-			} else if(tempRoad.getType() == 'A') {
+				if(tempRoad.roadDir == 'E')
+					g.drawImage(eastImg, Road.xAccumulativePosition-30, 
+							tempRoad.accumulativePosition-8, null);
+				else if(tempRoad.roadDir == 'W')
+					g.drawImage(westImg, 0, tempRoad.accumulativePosition-8, null);
+			} else if(tempRoad.roadType == 'A') {
 				//Drawing avenues
 				g.setColor(Color.gray);
-				g.fillRect(carlength*tempRoad.getAccPos()-3*carwidth, 0, 
-						6*carwidth, d.height);
+				g.fillRect(tempRoad.accumulativePosition-3*CarWidth, 0, 
+						6*CarWidth, d.height);
 				g.setColor(Color.WHITE);
-				if(tempRoad.getRoadDirection() == 'N')
-					g.drawImage(northImg, carlength*tempRoad.getAccPos()-8, 
+				if(tempRoad.roadDir == 'N')
+					g.drawImage(northImg, tempRoad.accumulativePosition-8, 
 							0, null);
-				else if(tempRoad.getRoadDirection() == 'S')
-					g.drawImage(southImg, carlength*tempRoad.getAccPos()-8, 
-							Road.getYAccPos()*carlength-30, null);
+				else if(tempRoad.roadDir == 'S')
+					g.drawImage(southImg, tempRoad.accumulativePosition-8, 
+							Road.yAccumulativePosition-30, null);
 			}
 		}
 		for(Map.Entry<char[], Road> entry : Road.getEntrySet()) {
 			tempRoad = entry.getValue();
-			if(tempRoad.getType() == 'S') {
+			if(tempRoad.roadType == 'S') {
 				//Drawing streets
 				g.setColor(Color.yellow);
-				g.drawLine(0, carlength*tempRoad.getAccPos()-carwidth, d.width, 
-						carlength*tempRoad.getAccPos()-carwidth);
-				g.drawLine(0, carlength*tempRoad.getAccPos()+carwidth, d.width, 
-						carlength*tempRoad.getAccPos()+carwidth);
-			} else if(tempRoad.getType() == 'A') {
+				g.drawLine(0, tempRoad.accumulativePosition-CarWidth, d.width, 
+						tempRoad.accumulativePosition-CarWidth);
+				g.drawLine(0, tempRoad.accumulativePosition+CarWidth, d.width, 
+						tempRoad.accumulativePosition+CarWidth);
+			} else if(tempRoad.roadType == 'A') {
 				//Drawing avenues
 				g.setColor(Color.yellow);
-				g.drawLine(carlength*tempRoad.getAccPos()-carwidth, 0, 
-						carlength*tempRoad.getAccPos()-carwidth, d.height);
-				g.drawLine(carlength*tempRoad.getAccPos()+carwidth, 0, 
-						carlength*tempRoad.getAccPos()+carwidth, d.height);
+				g.drawLine(tempRoad.accumulativePosition-CarWidth, 0, 
+						tempRoad.accumulativePosition-CarWidth, d.height);
+				g.drawLine(tempRoad.accumulativePosition+CarWidth, 0, 
+						tempRoad.accumulativePosition+CarWidth, d.height);
 			}
 		}
 	}
 	
-	public void paintLights(Graphics g) {
+	private void paintLights(Graphics g) {
 		//draw traffic lights at intersections as green initial
 		TrafficPoint tempPoint;
 		for(Map.Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
 			tempPoint = entry.getValue();
-			if(tempPoint.getControl()[0] != 'E') {
-				switch(tempPoint.getControl()[1]) {
+			if(tempPoint.control[0] != 'E') {		//not entrance nor exit
+				switch(tempPoint.control[1]) {
 					case 'R':	g.setColor(Color.red);
 								break;
 					case 'G':	g.setColor(Color.green);
@@ -138,14 +165,14 @@ public class PaintGrid extends Canvas implements Runnable {
 					case 'Y':	g.setColor(Color.yellow);
 								break;
 				}
-				if(tempPoint.getDirection()[1] == 'N') {
-					g.fillRect(carlength*tempPoint.getXY()[0]-3*carwidth, 
-							carlength*tempPoint.getXY()[1]-4*carwidth, 6*carwidth, carwidth);
-				} else if(tempPoint.getDirection()[1] == 'S') {
-					g.fillRect(carlength*tempPoint.getXY()[0]-3*carwidth, 
-							carlength*tempPoint.getXY()[1]+3*carwidth, 6*carwidth, carwidth);
+				if(tempPoint.roadDir[1] == 'N') {
+					g.fillRect(tempPoint.xy[0]-3*CarWidth, 
+							tempPoint.xy[1]-4*CarWidth, 6*CarWidth, CarWidth);
+				} else if(tempPoint.roadDir[1] == 'S') {
+					g.fillRect(tempPoint.xy[0]-3*CarWidth, 
+							tempPoint.xy[1]+3*CarWidth, 6*CarWidth, CarWidth);
 				}
-				switch(tempPoint.getControl()[0]) {
+				switch(tempPoint.control[0]) {
 					case 'R':	g.setColor(Color.red);
 								break;
 					case 'G':	g.setColor(Color.green);
@@ -153,12 +180,12 @@ public class PaintGrid extends Canvas implements Runnable {
 					case 'Y':	g.setColor(Color.yellow);
 								break;
 				}
-				if(tempPoint.getDirection()[0] == 'E') {
-					g.fillRect(carlength*tempPoint.getXY()[0]-4*carwidth, 
-							carlength*tempPoint.getXY()[1]-3*carwidth, carwidth, 6*carwidth);
-				} else if(tempPoint.getDirection()[0] == 'W') {
-					g.fillRect(carlength*tempPoint.getXY()[0]+3*carwidth, 
-							carlength*tempPoint.getXY()[1]-3*carwidth, carwidth, 6*carwidth);
+				if(tempPoint.roadDir[0] == 'E') {
+					g.fillRect(tempPoint.xy[0]+3*CarWidth, 
+							tempPoint.xy[1]-3*CarWidth, CarWidth, 6*CarWidth);
+				} else if(tempPoint.roadDir[0] == 'W') {
+					g.fillRect(tempPoint.xy[0]-4*CarWidth, 
+							tempPoint.xy[1]-3*CarWidth, CarWidth, 6*CarWidth);
 				}
 			}
 		}
@@ -169,9 +196,9 @@ public class PaintGrid extends Canvas implements Runnable {
 		Car tempCar;
 		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
 			tempCar = entry.getValue();
-			if(!tempCar.getXY().equals(new int[]{-1, -1})) {
-				g.fillRect(tempCar.getXY()[0]*carlength-4, 
-						tempCar.getXY()[1]*carlength-4, 8, 8);
+			if(!tempCar.xy.equals(new int[]{-1, -1})) {
+				g.fillRect(tempCar.xy[0]-4, 
+						tempCar.xy[1]-4, CarLength, CarLength);
 			}
 		}
 	}
@@ -188,7 +215,7 @@ public class PaintGrid extends Canvas implements Runnable {
 		while (isRunning) {
 			relax();
 			try {
-				Thread.sleep(500);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				break;
 			}

@@ -6,22 +6,22 @@ import java.util.Set;
 public class Road {
 	
 	private static HashMap<char[], Road> roadMap = new HashMap<char[], Road>();
-	private static int yAccumulativePosition = 0;
-	private static int xAccumulativePosition = 0;
+	protected static int yAccumulativePosition = 0;
+	protected static int xAccumulativePosition = 0;
 	
-	private char[] roadID = new char[4]; 	//The number for each street or avenue
+	protected char[] roadID = new char[4]; 	//The number for each street or avenue
 	/*
 	 * first char of the road ID 1=entrance, 2=exit, 3=street, 4=avenue
 	 */
-	private char roadType;		//S=street, A=avenue
-	private char roadDir;		//direction of source of traffic
-	private int accumulativePosition;
+	protected char roadType;		//S=street, A=avenue
+	protected char roadDir;		//direction of source of traffic
+	protected int accumulativePosition;
 	//These two are essentially used to show the start and end points of a road.
-	private TrafficPoint entrancePoint = null;
-	private TrafficPoint exitPoint = null;
+	protected TrafficPoint entrancePoint = null;
+	protected TrafficPoint exitPoint = null;
 	//needed for car movement default Forward=2, Turning=1
-	private int numberOfForwardLanes = 2;
-	private int numberOfTurningLanes = 1;
+	protected int numberOfForwardLanes = 2;
+	protected int numberOfTurningLanes = 1;
 	
 	public static boolean addRoads(int number, int MinBlockSide, 
 			int MaxBlockSide, char type) {
@@ -66,13 +66,6 @@ public class Road {
 		this.accumulativePosition = accPos;
 	}
 	
-	public static int getYAccPos() {
-		return yAccumulativePosition;
-	}
-	public static int getXAccPos() {
-		return xAccumulativePosition;
-	}
-	
 	public static Set<Map.Entry<char[] ,Road>> getEntrySet() {
 		return roadMap.entrySet();
 	}
@@ -98,26 +91,6 @@ public class Road {
 			this.exitPoint = exitPoint;
 		}
 		return true;
-	}
-	
-	public char getType(){
-		return roadType; //Return the road's type, S for Street and A for Avenue
-	}
-	public char[] getRoadID(){
-		return roadID; //Return the road's ID
-	}
-	public char getRoadDirection(){
-		return roadDir;		//Returns the direction the street is going in: N, E, W, or S
-	}
-	public int getAccPos() {
-		return accumulativePosition;
-	}
-	
-	public TrafficPoint getEntrancePoint() {
-		return entrancePoint; //Return the distance to the previous street/avenue
-	}
-	public TrafficPoint getExitPoint() {
-		return exitPoint; //Return the distance to the previous street/avenue
 	}
 	
 	private static char[] getStreetID(int i) {

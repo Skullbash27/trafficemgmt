@@ -7,28 +7,29 @@ public class Frame extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private PaintGrid paintGrid;
-	private Schedule lights;
-	private ToolBar toolBar;
-	private final int frameWidth = 900;
-	private final int frameHeight = 700;
-	private Configuration config;
-	private Grid grid;
+	protected PaintGrid paintGrid;
+	protected Schedule lights;
+	protected ToolBar toolBar;
+	protected final int frameWidth = 900;
+	protected final int frameHeight = 700;
+	protected Configuration config;
+	protected Grid grid;
 	
 	public Frame() {
 		super("Traffic Management System");
 		config  = new Configuration("traffic.conf");
-		grid  = new Grid(config.getNumberOfStreets(), config.getNumberOfAvenues(), 
-				config.getMinimumBlockSide(), config.getMaximumBlockSide());
-		paintGrid = new PaintGrid();
-		lights = new Schedule('D', config.getMaxGreenTime(), config.getYellowTime());
+		grid  = new Grid(config.NumberOfStreets, config.NumberOfAvenues, 
+				config.MinimumBlockSide, config.MaximumBlockSide, 
+				config.CarLength);
+		paintGrid = new PaintGrid(config.CarLength, config.CarWidth);
+		lights = new Schedule('D', config.MaxGreenTime, config.YellowTime);
 		toolBar = new ToolBar();
 		
 		toolBar.setDisplayEvents(new DisplayEvents(){
 			public void draw() {
 				paintGrid.start();
 				lights.start();
-				Car.addCars(7, grid);
+				Car.addCars(15, grid);
 				
 			}			
 		});
