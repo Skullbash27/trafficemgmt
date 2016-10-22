@@ -20,8 +20,8 @@ public class Frame extends JFrame {
 		config  = new Configuration("traffic.conf");
 		grid  = new Grid(config.NumberOfStreets, config.NumberOfAvenues, 
 				config.MinimumBlockSide, config.MaximumBlockSide, 
-				config.CarLength);
-		paintGrid = new PaintGrid(config.CarLength, config.CarWidth);
+				config.CarLength, config.CarWidth, config.Clearance);
+		paintGrid = new PaintGrid(config.CarLength, config.CarWidth, config.Clearance);
 		lights = new Schedule('D', config.MaxGreenTime, config.YellowTime);
 		toolBar = new ToolBar();
 		

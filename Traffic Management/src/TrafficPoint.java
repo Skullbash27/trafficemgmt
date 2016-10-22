@@ -22,7 +22,9 @@ public class TrafficPoint {
 	 */
 	protected char[] roadDir = new char[2];
 	//first char street direction, second char avenue direction
-	protected int[] xy = new int[2];
+	//protected int[] xy = new int[2];
+	protected int[][][] sectors = new int[3][3][2];
+	protected boolean[][] flag = new boolean[3][3];
 	protected char[] control = new char[2];
 	/*
 	 * first char street light status R=Red G=Green Y=Yellow
@@ -46,17 +48,49 @@ public class TrafficPoint {
 			if(tempRoad.roadType == 'S') {
 				tempPoint1 = new TrafficPoint(tempRoad, null, new char[]{'E','N'});
 				tempRoad.setEntrancePoints(tempPoint1);
+				for(int i=0; i<3; i++) {
+					for(int j=0; j<3; j++) {
+						tempPoint1.sectors[i][j][0] = (tempRoad.roadDir == 'E')? 
+								Road.xAccumulativePosition : 0;
+						tempPoint1.sectors[i][j][1] = tempRoad.sectors[i];
+						tempPoint1.flag[i][j] = false;
+					}
+				}
 				trafficPoints.put(tempPoint1.pointID, tempPoint1);
 				tempPoint1 = new TrafficPoint(tempRoad, null, new char[]{'E','X'});
 				tempRoad.setExitPoints(tempPoint1);
+				for(int i=0; i<3; i++) {
+					for(int j=0; j<3; j++) {
+						tempPoint1.sectors[i][j][0] = (tempRoad.roadDir == 'W')? 
+								Road.xAccumulativePosition : 0;
+						tempPoint1.sectors[i][j][1] = tempRoad.sectors[i];
+						tempPoint1.flag[i][j] = false;
+					}
+				}
 				trafficPoints.put(tempPoint1.pointID, tempPoint1);
 			}
 			else if(tempRoad.roadType == 'A') {
 				tempPoint1 = new TrafficPoint(null, tempRoad, new char[]{'E','N'});
 				tempRoad.setEntrancePoints(tempPoint1);
+				for(int i=0; i<3; i++) {
+					for(int j=0; j<3; j++) {
+						tempPoint1.sectors[i][j][0] = tempRoad.sectors[j];
+						tempPoint1.sectors[i][j][1] = (tempRoad.roadDir == 'N')?
+								0 : Road.yAccumulativePosition;
+						tempPoint1.flag[i][j] = false;
+					}
+				}
 				trafficPoints.put(tempPoint1.pointID, tempPoint1);
 				tempPoint1 = new TrafficPoint(null, tempRoad, new char[]{'E','X'});
 				tempRoad.setExitPoints(tempPoint1);
+				for(int i=0; i<3; i++) {
+					for(int j=0; j<3; j++) {
+						tempPoint1.sectors[i][j][0] = tempRoad.sectors[j];
+						tempPoint1.sectors[i][j][1] = (tempRoad.roadDir == 'S')?
+								0 : Road.yAccumulativePosition;
+						tempPoint1.flag[i][j] = false;
+					}
+				}
 				trafficPoints.put(tempPoint1.pointID, tempPoint1);
 			}
 		}
@@ -66,7 +100,14 @@ public class TrafficPoint {
 				if(entry1.getValue().roadType == 'S' && 
 						entry2.getValue().roadType == 'A') {
 					tempPoint1 = new TrafficPoint(entry1.getValue(), entry2.getValue(), 
-						new char[]{'R','Y'});
+							new char[]{'R','Y'});
+					for(int i=0; i<3; i++) {
+						for(int j=0; j<3; j++) {
+							tempPoint1.sectors[i][j][0] = entry2.getValue().sectors[j];
+							tempPoint1.sectors[i][j][1] = entry1.getValue().sectors[i];
+							tempPoint1.flag[i][j] = false;
+						}
+					}
 					trafficPoints.put(tempPoint1.pointID, tempPoint1);
 				}
 			}
@@ -77,7 +118,7 @@ public class TrafficPoint {
 				tempPoint1 = entry1.getValue();
 				tempPoint2 = entry2.getValue();
 				difference = tempPoint1.distance(tempPoint2);
-				if(tempPoint1.xy[0] == tempPoint2.xy[0]) {	//points on same avenue
+				if(tempPoint1.sectors[1][1][0] == tempPoint2.sectors[1][1][0]) {	//points on same avenue
 					if(tempPoint1.roadDir[1] == 'N') { 		//same x position = same direction
 						if(difference < 0) {
 							if(tempPoint1.nextAvenue == null)
@@ -93,7 +134,7 @@ public class TrafficPoint {
 								tempPoint1.nextAvenue = tempPoint2;
 						}
 					}
-				} else if(tempPoint1.xy[1] == tempPoint2.xy[1]) {	//points on same street
+				} else if(tempPoint1.sectors[1][1][1] == tempPoint2.sectors[1][1][1]) {	//points on same street
 					if(tempPoint1.roadDir[0] == 'E') {
 						if(difference > 0) {
 							if(tempPoint1.nextStreet == null)
@@ -116,6 +157,7 @@ public class TrafficPoint {
 			tempPoint1 = entry.getValue();
 			System.out.print(tempPoint1.pointID);
 			System.out.print("\t");
+			System.out.print(tempPoint1.roadDir[0]+" "+tempPoint1.roadDir[1]+"\t");
 			if(tempPoint1.nextAvenue != null)
 				System.out.print(tempPoint1.nextAvenue.pointID);
 			else
@@ -151,14 +193,14 @@ public class TrafficPoint {
 				this.pointID[0] = '1';
 			else if(control[1] == 'X')
 				this.pointID[0] = '2';
-			this.xy[1] = street.accumulativePosition;
+			//this.xy[1] = street.accumulativePosition;
 			//based on entrance, exit and direction position assigned
-			if((street.roadDir == 'E' && control[1] == 'N') || 		//from east entrance
+			/*if((street.roadDir == 'E' && control[1] == 'N') || 		//from east entrance
 					(street.roadDir == 'W' && control[1] == 'X'))	//from west exit
 				this.xy[0] = Road.xAccumulativePosition;
 			else if((street.roadDir == 'E' && control[1] == 'X') || 	//from east exit
 					(street.roadDir == 'W' && control[1] == 'N'))	//from west entrance
-				this.xy[0] = 0;
+				this.xy[0] = 0;*/
 			this.roadDir[0] = street.roadDir;
 			this.roadDir[1] = this.roadDir[0];
 		} else if(street == null) {		//initialize as avenue entrance or exit
@@ -166,20 +208,20 @@ public class TrafficPoint {
 				this.pointID[4] = '1';
 			else if(control[1] == 'X')
 				this.pointID[4] = '2';
-			this.xy[0] = avenue.accumulativePosition;
-			if((avenue.roadDir == 'N' && control[1] == 'N') || 
+			//this.xy[0] = avenue.accumulativePosition;
+			/*if((avenue.roadDir == 'N' && control[1] == 'N') || 
 					(avenue.roadDir == 'S' && control[1] == 'X'))
 				this.xy[1] = 0;
 			else if((avenue.roadDir == 'S' && control[1] == 'N') || 
 					(avenue.roadDir == 'N' && control[1] == 'X'))
-				this.xy[1] = Road.yAccumulativePosition;
+				this.xy[1] = Road.yAccumulativePosition;*/
 			this.roadDir[0] = avenue.roadDir;
 			this.roadDir[1] = this.roadDir[0];
 		} else {						//initialize as intersection
 			streetID = street.roadID;
 			avenueID = avenue.roadID;
-			this.xy[0] = avenue.accumulativePosition;
-			this.xy[1] = street.accumulativePosition;
+			//this.xy[0] = avenue.accumulativePosition;
+			//this.xy[1] = street.accumulativePosition;
 			this.roadDir[0] = street.roadDir;
 			this.roadDir[1] = avenue.roadDir;
 		}
@@ -232,19 +274,43 @@ public class TrafficPoint {
 	}
 	
 	public int distance(TrafficPoint tempPoint) {
-		if(this.xy[0] == tempPoint.xy[0])
-			return this.xy[1] - tempPoint.xy[1];
-		else if(this.xy[1] == tempPoint.xy[1])
-			return this.xy[0] - tempPoint.xy[0];
+		if(this.sectors[1][1][0] == tempPoint.sectors[1][1][0])
+			return this.sectors[1][1][1] - tempPoint.sectors[1][1][1];
+		else if(this.sectors[1][1][1] == tempPoint.sectors[1][1][1])
+			return this.sectors[1][1][0] - tempPoint.sectors[1][1][0];
 		else
 			return Integer.MAX_VALUE;
 	}
 	public int distance(Car tempCar) {
-		if(this.xy[0] == tempCar.xy[0])
-			return this.xy[1] - tempCar.xy[1];
-		else if(this.xy[1] == tempCar.xy[1])
-			return this.xy[0] - tempCar.xy[0];
-		else
-			return Integer.MAX_VALUE;
+		if(tempCar.dir == 'N') {
+			if(tempCar.xy[0] == this.sectors[0][0][0])
+				return this.sectors[0][0][1] - tempCar.xy[1];
+			else if(tempCar.xy[0] == this.sectors[0][1][0])
+				return this.sectors[0][1][1] - tempCar.xy[1];
+			else if(tempCar.xy[0] == this.sectors[0][2][0])
+				return this.sectors[0][2][1] - tempCar.xy[1];
+		} else if(tempCar.dir == 'S') {
+			if(tempCar.xy[0] == this.sectors[2][0][0])
+				return this.sectors[2][0][1] - tempCar.xy[1];
+			else if(tempCar.xy[0] == this.sectors[2][1][0])
+				return this.sectors[2][1][1] - tempCar.xy[1];
+			else if(tempCar.xy[0] == this.sectors[2][2][0])
+				return this.sectors[2][2][1] - tempCar.xy[1];
+		} else if(tempCar.dir == 'E') {
+			if(tempCar.xy[1] == this.sectors[0][2][1])
+				return this.sectors[0][2][0] - tempCar.xy[0];
+			else if(tempCar.xy[1] == this.sectors[1][2][1])
+				return this.sectors[1][2][0] - tempCar.xy[0];
+			else if(tempCar.xy[1] == this.sectors[2][2][1])
+				return this.sectors[2][2][0] - tempCar.xy[0];
+		} else if(tempCar.dir == 'W') {
+			if(tempCar.xy[1] == this.sectors[0][0][1])
+				return this.sectors[0][0][0] - tempCar.xy[0];
+			else if(tempCar.xy[1] == this.sectors[1][0][1])
+				return this.sectors[1][0][0] - tempCar.xy[0];
+			else if(tempCar.xy[1] == this.sectors[2][0][1])
+				return this.sectors[2][0][0] - tempCar.xy[0];
+		}
+		return Integer.MAX_VALUE;
 	}
 }

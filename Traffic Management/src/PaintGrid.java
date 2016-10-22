@@ -11,15 +11,16 @@ import javax.swing.ImageIcon;
 public class PaintGrid extends Canvas implements Runnable {
 	
 	private static final long serialVersionUID = 1L;
-	private int CarLength = 6, CarWidth=3;
+	private int CarLength = 6, CarWidth=3, Clearance = 2;
 	private Thread gridPaint;
 	private boolean isRunning = false;
 	
 	private Image northImg, southImg, eastImg, westImg;
 	
-	public PaintGrid(int CarLength, int CarWidth) {
+	public PaintGrid(int CarLength, int CarWidth, int Clearance) {
 		this.CarLength = CarLength;
 		this.CarWidth = CarWidth;
+		this.Clearance = Clearance;
 		loadImages();
 	}
 	
@@ -43,7 +44,20 @@ public class PaintGrid extends Canvas implements Runnable {
 				}
 				if(!wait) {
 					tempCar = tempPoint.Dequeue();
-					tempCar.xy = Arrays.copyOfRange(tempPoint.xy, 0, 2);
+					if(tempCar.lane == 'M')
+						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[1][1], 0, 2);
+					else if((tempPoint.roadDir[0] == 'E' && tempCar.lane == 'R') || 
+							(tempPoint.roadDir[0] == 'W' && tempCar.lane == 'L'))
+						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][0], 0, 2);
+					else if((tempPoint.roadDir[0] == 'E' && tempCar.lane == 'L') || 
+							(tempPoint.roadDir[0] == 'W' && tempCar.lane == 'R'))
+						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[2][0], 0, 2);
+					else if((tempPoint.roadDir[0] == 'N' && tempCar.lane == 'R') || 
+							(tempPoint.roadDir[0] == 'S' && tempCar.lane == 'L'))
+						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][0], 0, 2);
+					else if((tempPoint.roadDir[0] == 'N' && tempCar.lane == 'L') ||
+							(tempPoint.roadDir[0] == 'S' && tempCar.lane == 'R'))
+						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][2], 0, 2);
 					tempCar.setDirection(tempPoint.roadDir[0]);
 					//direction same for entrance and exit points
 					tempCar.nextPoint = (tempPoint.nextStreet == null)? 
@@ -104,49 +118,50 @@ public class PaintGrid extends Canvas implements Runnable {
 	private void paintRoad(Graphics g){
 		Dimension d = getSize();
 		Road tempRoad;
+		int roadCoord = 1+(int)(1.5*(CarWidth+Clearance));
+		int roadWidth = 2+3*(CarWidth+Clearance);
 		for(Map.Entry<char[], Road> entry : Road.getEntrySet()) {
 			tempRoad = entry.getValue();
 			if(tempRoad.roadType == 'S') {
 				//Drawing streets
 				g.setColor(Color.gray);
-				g.fillRect(0, tempRoad.accumulativePosition-3*CarWidth, 
-						d.width, 6*CarWidth);
+				g.fillRect(0, tempRoad.sectors[1] - roadCoord, d.width, roadWidth);
 				g.setColor(Color.WHITE);
 				if(tempRoad.roadDir == 'E')
 					g.drawImage(eastImg, Road.xAccumulativePosition-30, 
-							tempRoad.accumulativePosition-8, null);
+							tempRoad.sectors[1] -8, null);
 				else if(tempRoad.roadDir == 'W')
-					g.drawImage(westImg, 0, tempRoad.accumulativePosition-8, null);
+					g.drawImage(westImg, 0, tempRoad.sectors[1]-8, null);
 			} else if(tempRoad.roadType == 'A') {
 				//Drawing avenues
 				g.setColor(Color.gray);
-				g.fillRect(tempRoad.accumulativePosition-3*CarWidth, 0, 
-						6*CarWidth, d.height);
+				g.fillRect(tempRoad.sectors[1] - roadCoord, 0, roadWidth, d.height);
 				g.setColor(Color.WHITE);
 				if(tempRoad.roadDir == 'N')
-					g.drawImage(northImg, tempRoad.accumulativePosition-8, 
+					g.drawImage(northImg, tempRoad.sectors[1]-8, 
 							0, null);
 				else if(tempRoad.roadDir == 'S')
-					g.drawImage(southImg, tempRoad.accumulativePosition-8, 
+					g.drawImage(southImg, tempRoad.sectors[1]-8, 
 							Road.yAccumulativePosition-30, null);
 			}
 		}
+		int yellowLine = 1 + (int)(0.5*(CarWidth+Clearance));
 		for(Map.Entry<char[], Road> entry : Road.getEntrySet()) {
 			tempRoad = entry.getValue();
 			if(tempRoad.roadType == 'S') {
 				//Drawing streets
 				g.setColor(Color.yellow);
-				g.drawLine(0, tempRoad.accumulativePosition-CarWidth, d.width, 
-						tempRoad.accumulativePosition-CarWidth);
-				g.drawLine(0, tempRoad.accumulativePosition+CarWidth, d.width, 
-						tempRoad.accumulativePosition+CarWidth);
+				g.drawLine(0, tempRoad.sectors[1]-yellowLine, d.width, 
+						tempRoad.sectors[1]-yellowLine);
+				g.drawLine(0, tempRoad.sectors[1]+yellowLine, d.width, 
+						tempRoad.sectors[1]+yellowLine);
 			} else if(tempRoad.roadType == 'A') {
 				//Drawing avenues
 				g.setColor(Color.yellow);
-				g.drawLine(tempRoad.accumulativePosition-CarWidth, 0, 
-						tempRoad.accumulativePosition-CarWidth, d.height);
-				g.drawLine(tempRoad.accumulativePosition+CarWidth, 0, 
-						tempRoad.accumulativePosition+CarWidth, d.height);
+				g.drawLine(tempRoad.sectors[1]-yellowLine, 0, 
+						tempRoad.sectors[1]-yellowLine, d.height);
+				g.drawLine(tempRoad.sectors[1]+yellowLine, 0, 
+						tempRoad.sectors[1]+yellowLine, d.height);
 			}
 		}
 	}
@@ -166,11 +181,11 @@ public class PaintGrid extends Canvas implements Runnable {
 								break;
 				}
 				if(tempPoint.roadDir[1] == 'N') {
-					g.fillRect(tempPoint.xy[0]-3*CarWidth, 
-							tempPoint.xy[1]-4*CarWidth, 6*CarWidth, CarWidth);
+					g.fillRect(tempPoint.sectors[1][1][0]-3*CarWidth, 
+							tempPoint.sectors[1][1][1]-4*CarWidth, 6*CarWidth, CarWidth);
 				} else if(tempPoint.roadDir[1] == 'S') {
-					g.fillRect(tempPoint.xy[0]-3*CarWidth, 
-							tempPoint.xy[1]+3*CarWidth, 6*CarWidth, CarWidth);
+					g.fillRect(tempPoint.sectors[1][1][0]-3*CarWidth, 
+							tempPoint.sectors[1][1][1]+3*CarWidth, 6*CarWidth, CarWidth);
 				}
 				switch(tempPoint.control[0]) {
 					case 'R':	g.setColor(Color.red);
@@ -181,11 +196,11 @@ public class PaintGrid extends Canvas implements Runnable {
 								break;
 				}
 				if(tempPoint.roadDir[0] == 'E') {
-					g.fillRect(tempPoint.xy[0]+3*CarWidth, 
-							tempPoint.xy[1]-3*CarWidth, CarWidth, 6*CarWidth);
+					g.fillRect(tempPoint.sectors[1][1][0]+3*CarWidth, 
+							tempPoint.sectors[1][1][1]-3*CarWidth, CarWidth, 6*CarWidth);
 				} else if(tempPoint.roadDir[0] == 'W') {
-					g.fillRect(tempPoint.xy[0]-4*CarWidth, 
-							tempPoint.xy[1]-3*CarWidth, CarWidth, 6*CarWidth);
+					g.fillRect(tempPoint.sectors[1][1][0]-4*CarWidth, 
+							tempPoint.sectors[1][1][1]-3*CarWidth, CarWidth, 6*CarWidth);
 				}
 			}
 		}
@@ -194,11 +209,17 @@ public class PaintGrid extends Canvas implements Runnable {
 	private void paintCars(Graphics g) {
 		g.setColor(Color.cyan);
 		Car tempCar;
+		int HLength = 1+(int)(CarLength/2);
+		int HWidth = 1+(int)(0.5*(CarWidth-Clearance));
 		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
+			if(entry.getValue().phase != 'M') continue;
 			tempCar = entry.getValue();
 			if(!tempCar.xy.equals(new int[]{-1, -1})) {
-				g.fillRect(tempCar.xy[0]-4, 
-						tempCar.xy[1]-4, CarLength, CarLength);
+				if(tempCar.dir == 'E' || tempCar.dir == 'W')
+					g.fillRect(tempCar.xy[0]-HLength, tempCar.xy[1]-HWidth, CarLength, CarWidth);
+				else if(tempCar.dir == 'N' || tempCar.dir == 'S')
+					g.fillRect(tempCar.xy[0]-HWidth, tempCar.xy[1]-HLength, CarWidth, CarLength);
+					
 			}
 		}
 	}

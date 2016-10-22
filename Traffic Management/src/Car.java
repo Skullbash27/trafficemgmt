@@ -3,7 +3,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.Map.Entry;
 
 public class Car {
 	protected static int carCount = 0;
@@ -56,7 +55,7 @@ public class Car {
 		TrafficPoint entrance, exit;
 		Object[] roadKeysRand = Road.getKeySet().toArray();
 		int i=0;
-		
+		int rand = 0;
 		while(i<numberOfCars) {
 			roadID = (char[]) roadKeysRand[new Random().nextInt(roadKeysRand.length)];
 			tempRoad = Road.getRoad(roadID);
@@ -64,6 +63,10 @@ public class Car {
 			exit = tempRoad.exitPoint;
 			tempCar = new Car(carCount+1, entrance, exit);
 			tempCar.road = (entrance.street == null)? entrance.avenue : entrance.street;
+			rand = (int)(Math.random()*3);
+			if(rand == 0) tempCar.lane = 'L';
+			else if(rand == 1) tempCar.lane = 'M';
+			else if(rand == 2) tempCar.lane = 'R';
 			allCars.put(tempCar.carID, tempCar);
 			entrance.queueCar(tempCar);
 			carCount++;
@@ -79,9 +82,13 @@ public class Car {
 	public void moveXY(int[] dist) {
 		this.xy[0] += dist[0];
 		this.xy[1] += dist[1];
-		if(this.nextPoint == null)
-			this.nextPoint = this.exitPoint;
-		if(Math.abs(this.nextPoint.distance(this)) < (17)) {		//replace constant with function of CarWidth
+		if(this.nextPoint.control[1] == 'X') {			//next point is exit point
+			if(this.xy[0] < 0 || this.xy[0] > Road.xAccumulativePosition ||
+					this.xy[1] < 0 || this.xy[1] > Road.yAccumulativePosition)
+				this.phase = 'S';
+			return;
+		}
+		if(Math.abs(this.nextPoint.distance(this)) < 7) {		//replace constant with function of CarWidth
 			if(this.dir == 'N' || this.dir == 'S') {
 				if(this.nextPoint.control[1] != 'R') {
 					this.nextPoint = this.nextPoint.nextAvenue;
