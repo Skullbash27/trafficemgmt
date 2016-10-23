@@ -15,7 +15,8 @@ public class Road {
 	 */
 	protected char roadType;		//S=street, A=avenue
 	protected char roadDir;		//direction of source of traffic
-	protected int accumulativePosition;
+	//protected int accumulativePosition;
+	protected int[] sectors = new int[3];
 	//These two are essentially used to show the start and end points of a road.
 	protected TrafficPoint entrancePoint = null;
 	protected TrafficPoint exitPoint = null;
@@ -24,7 +25,7 @@ public class Road {
 	protected int numberOfTurningLanes = 1;
 	
 	public static boolean addRoads(int number, int MinBlockSide, 
-			int MaxBlockSide, char type) {
+			int MaxBlockSide, char type, int CarWidth, int Clearance) {
 		if(number == 0 || MinBlockSide <= 0 || MaxBlockSide <= 0 || 
 				(type != 'S' || type != 'A')) {
 			int accPos = 0;
@@ -41,6 +42,10 @@ public class Road {
 				else if(type == 'A')
 					dir = (i%2==0)? 'N':'S';
 				tempRoad = new Road(i, dir, type, accPos);
+				//middle coordinates for all lanes
+				tempRoad.sectors[0] = accPos - 1 - CarWidth - Clearance;
+				tempRoad.sectors[1] = accPos;
+				tempRoad.sectors[2] = accPos + 1 + CarWidth + Clearance;
 				roadMap.put(tempRoad.roadID, tempRoad);
 			}
 			accPos += (int) (MinBlockSide+(MaxBlockSide-MinBlockSide)*Math.random());
@@ -63,7 +68,7 @@ public class Road {
 			this.roadID = Arrays.copyOfRange(getAvenueID(ID), 0, 4);
 		this.roadType = type;
 		this.roadDir = roadDir;
-		this.accumulativePosition = accPos;
+		//this.accumulativePosition = accPos;
 	}
 	
 	public static Set<Map.Entry<char[] ,Road>> getEntrySet() {
