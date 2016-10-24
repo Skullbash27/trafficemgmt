@@ -44,6 +44,7 @@ public class PaintGrid extends Canvas implements Runnable {
 				}
 				if(!wait) {
 					tempCar = tempPoint.Dequeue();
+					tempCar.enterGrid();
 					if(tempCar.lane == 'M')
 						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[1][1], 0, 2);
 					else if((tempPoint.roadDir[0] == 'E' && tempCar.lane == 'R') || 
@@ -96,6 +97,16 @@ public class PaintGrid extends Canvas implements Runnable {
 			}
 			wait = false;
 		}
+		wait = false;
+		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
+			wait = entry.getValue().phase != 'S';
+			if(wait) break;
+		}
+		if (!wait && Car.carCount != 0) {
+			this.stop();
+			System.out.println("Execution stopped");
+			return;
+		}	
 		repaint();
 	}
 	

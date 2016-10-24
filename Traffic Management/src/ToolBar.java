@@ -45,7 +45,7 @@ public class ToolBar extends JPanel implements ActionListener {
 			if (events != null) {
 			//	events.draw();
 			}
-			Statistics stats = new Statistics();
+			StatWindow stats = new StatWindow();
 			stats.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			stats.setVisible(true);
 		}		
