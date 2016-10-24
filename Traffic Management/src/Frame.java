@@ -14,6 +14,7 @@ public class Frame extends JFrame {
 	protected final int frameHeight = 700;
 	protected Configuration config;
 	protected Grid grid;
+	public static int carCount = 15; //added by Austin
 	
 	public Frame() {
 		super("Traffic Management System");
@@ -29,7 +30,7 @@ public class Frame extends JFrame {
 			public void draw() {
 				paintGrid.start();
 				lights.start();
-				Car.addCars(15, grid);
+				Car.addCars(carCount, grid);
 				
 			}			
 		});

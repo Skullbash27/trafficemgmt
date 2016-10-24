@@ -2776,3 +2776,55 @@ org.eclipse.recommenders.utils.Logs$LogTraceException
 	at org.eclipse.recommenders.internal.calls.rcp.RcpCallModelProvider.acquireModel(RcpCallModelProvider.java:1)
 	at org.eclipse.recommenders.internal.models.rcp.PrefetchModelArchiveJob.run(PrefetchModelArchiveJob.java:43)
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)
+!SESSION 2016-10-23 23:04:02.416 -----------------------------------------------
+eclipse.buildId=4.6.0.I20160606-1100
+java.version=1.8.0_40
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.egit.ui 2 0 2016-10-23 23:04:39.542
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\Austin'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY org.eclipse.ui 4 0 2016-10-23 23:04:43.379
+!MESSAGE The org.eclipse.ui.IStartup extension from 'com.google.gdt.eclipse.designer' does not provide a valid 'startup' element.
+
+!ENTRY org.eclipse.ui 4 0 2016-10-23 23:04:43.774
+!MESSAGE The org.eclipse.ui.IStartup extension from 'com.google.gdt.eclipse.designer.GXT' does not provide a valid 'startup' element.
+
+!ENTRY org.eclipse.ui 4 0 2016-10-23 23:04:43.844
+!MESSAGE The org.eclipse.ui.IStartup extension from 'com.google.gdt.eclipse.designer.SmartGWT' does not provide a valid 'startup' element.
+
+!ENTRY org.eclipse.ui 4 0 2016-10-23 23:04:44.398
+!MESSAGE The org.eclipse.ui.IStartup extension from 'com.google.gdt.eclipse.designer.UiBinder' does not provide a valid 'startup' element.
+!SESSION 2016-10-23 23:05:40.457 -----------------------------------------------
+eclipse.buildId=4.6.0.I20160606-1100
+java.version=1.8.0_40
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.java.product -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product -data C:\Users\Austin\Documents\Semester-3\Cloud Computing\Project5\trafficemgmt -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.egit.ui 2 0 2016-10-23 23:05:53.765
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\Austin'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY org.eclipse.ui 4 0 2016-10-23 23:05:55.813
+!MESSAGE The org.eclipse.ui.IStartup extension from 'com.google.gdt.eclipse.designer' does not provide a valid 'startup' element.
+
+!ENTRY org.eclipse.ui 4 0 2016-10-23 23:05:55.935
+!MESSAGE The org.eclipse.ui.IStartup extension from 'com.google.gdt.eclipse.designer.GXT' does not provide a valid 'startup' element.
+
+!ENTRY org.eclipse.ui 4 0 2016-10-23 23:05:56.004
+!MESSAGE The org.eclipse.ui.IStartup extension from 'com.google.gdt.eclipse.designer.SmartGWT' does not provide a valid 'startup' element.
+
+!ENTRY org.eclipse.ui 4 0 2016-10-23 23:05:56.047
+!MESSAGE The org.eclipse.ui.IStartup extension from 'com.google.gdt.eclipse.designer.UiBinder' does not provide a valid 'startup' element.

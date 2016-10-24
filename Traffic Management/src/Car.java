@@ -28,6 +28,13 @@ public class Car {
 	 * char[2]=number of turns
 	 * char[3:7]=unique ID
 	 */
+	//Code added here
+	public long exitTime;
+	public long entryTime;
+	String tempStringExit;
+	public long carDistance;
+	//Code added here
+	
 	protected boolean isQueued = false;
 	protected Car nextInLine = null;
 	//true=car is attached to a queue, false=car running in grid
@@ -79,13 +86,34 @@ public class Car {
 		return allCars.entrySet();
 	}
 	
+	//Code added here
+	public boolean enterGrid() {
+		if (phase != 'Q') {
+			return false;
+		}
+		this.phase = 'M';
+		this.entryTime = System.currentTimeMillis();
+		return true;
+	}
+	//Code added here
+	
 	public void moveXY(int[] dist) {
 		this.xy[0] += dist[0];
 		this.xy[1] += dist[1];
+		
+		//Code added here
+		this.carDistance += (dist[0] == 0)? Math.abs(dist[1]):Math.abs(dist[0]);
+		//Code added here
+		
+		
 		if(this.nextPoint.control[1] == 'X') {			//next point is exit point
 			if(this.xy[0] < 0 || this.xy[0] > Road.xAccumulativePosition ||
 					this.xy[1] < 0 || this.xy[1] > Road.yAccumulativePosition)
 				this.phase = 'S';
+			//Code added here
+				exitTime = System.currentTimeMillis();
+				tempStringExit = Long.toString(exitTime);
+			//Code added here	
 			return;
 		}
 		if(Math.abs(this.nextPoint.distance(this)) < 7) {		//replace constant with function of CarWidth
@@ -103,6 +131,9 @@ public class Car {
 		} else return;
 		this.xy[0] -= dist[0];
 		this.xy[1] -= dist[1];
+		//Code added here
+		this.carDistance -= (dist[0] == 0)? Math.abs(dist[1]):Math.abs(dist[0]);
+		//Code added here
 	}
 	
 	public void setDirection(char direction) {
