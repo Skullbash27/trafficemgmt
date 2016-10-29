@@ -11,6 +11,11 @@ public class TrafficPoint {
 	protected Road avenue = null;
 	protected TrafficPoint nextStreet = null;
 	protected TrafficPoint nextAvenue = null;
+	protected boolean carInQueueStreet = false;
+	protected boolean carInQueueAvenue = false;
+	public int queuedCarsInStreet = 0;
+	public int queuedCarsInAvenue = 0;
+	public int queueTimer = 0;
 	
 	protected char[] pointID = new char[8];
 	/*
@@ -33,6 +38,9 @@ public class TrafficPoint {
 	 */
 	protected Car firstInLine = null;
 	protected boolean carInQueue = false;
+	protected Car firstInLineStreet = null;
+	protected Car firstInLineAvenue = null;
+	
 	//queue of cars waiting
 	
 	public static boolean addControlPoits(Set<Map.Entry<char[] ,Road>> set) {
@@ -235,29 +243,170 @@ public class TrafficPoint {
 	}
 	
 	public boolean emptyQueue() {
-		return !carInQueue;
+		if(this.control[0] == 'E'){
+			if(this.roadDir[0] == 'E' || this.roadDir[0] == 'W')
+				return !this.carInQueueStreet;
+			else if(this.roadDir[0]  == 'N' || this.roadDir[0] == 'S') {
+				return !this.carInQueueAvenue;
+			}
+		} else {
+				return !(this.carInQueueAvenue && this.carInQueueStreet);
+		}
+		return false;
 	}
 	public boolean queueCar(Car nextInLine) {
+		/*
 		if(carInQueue)			//continue till last one and queue to it
 			return this.firstInLine.queueCar(nextInLine);
 		this.firstInLine = nextInLine;
 		carInQueue = true;
 		return carInQueue;
+		*/
+		
+		if(this.control[0] == 'E') {
+			if(this.roadDir[0] == 'E' || this.roadDir[0] == 'W') {
+				return this.queueCarInStreet(nextInLine);
+			}
+			else if(this.roadDir[0] == 'N' || this.roadDir[0] == 'S') {
+				return this.queueCarInAvenue(nextInLine);
+			}
+			else if(nextInLine.dir == this.roadDir[0]) {
+				return this.queueCarInStreet(nextInLine);
+			}
+			else if(nextInLine.dir == this.roadDir[1]) {
+				return this.queueCarInAvenue(nextInLine);
+			}
+			else {
+				System.out.println("Queueing Problem");
+			}				
+		}	
+		return false;
 	}
-	public Car Dequeue() {
-		if(carInQueue == false)
+	
+	private boolean queueCarInStreet(Car nextInLine) {
+		if(this.carInQueueStreet) {
+			if(this.firstInLineStreet.queueCar(nextInLine)) {
+				queuedCarsInStreet++;
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		queuedCarsInStreet++;
+		this.firstInLineStreet = nextInLine;
+		this.carInQueueStreet = true;
+		return this.carInQueueStreet;
+	}
+	
+	private boolean queueCarInAvenue(Car nextInLine) {
+		if(this.carInQueueAvenue){
+			if(this.firstInLineAvenue.queueCar(nextInLine)) {
+				queuedCarsInAvenue++;
+				return true;
+			} else {
+				return false;
+			}
+		}
+		queuedCarsInAvenue++;
+		this.firstInLineAvenue = nextInLine;
+		this.carInQueueAvenue = true;
+		return this.carInQueueAvenue;		
+	}
+			
+	public boolean Dequeue(Car tempCarPresent) {
+		/*if(carInQueue == false)
 			return null;
 		Car tempCar = this.firstInLine;
 		this.firstInLine = tempCar.nextInLine;
 		if(this.firstInLine == null)
 			carInQueue = false;
-		return tempCar;
+		return tempCar;*/
+		Car tempCarPresentReference;
+		if(this.roadDir[0] == tempCarPresent.dir) {
+			tempCarPresentReference = this.firstInLineStreet;
+		} else if (this.roadDir[1] == tempCarPresent.dir) {
+			tempCarPresentReference = this.firstInLineAvenue;
+		} else {
+			return false;
+		}
+		boolean found = (tempCarPresent == tempCarPresentReference);
+		if(found) {
+			this.Dequeue();
+			return found;
+		}
+		while(!found && tempCarPresentReference != null) {
+			if(tempCarPresent == tempCarPresentReference.nextInLine) {
+				found = true;
+				tempCarPresentReference.Dequeue();
+			} else {
+				tempCarPresentReference = tempCarPresentReference.nextInLine;
+			}
+		}
+		if(found) {
+			if(this.roadDir[0] == tempCarPresent.dir) {
+				this.queuedCarsInStreet--;
+			} else if(this.roadDir[1] == tempCarPresent.dir) {
+				this.queuedCarsInAvenue--;
+			}
+		}
+		return found;
 	}
 	
+	public Car Dequeue() {
+        Car tempCar = null;
+        /*System.out.print("D\t");
+        System.out.print(this.pointID);
+        System.out.print("\t");
+        System.out.print(this.queuedCarsS+" "+this.queuedCarsA+"\t");*/
+        if(this.control[0] == 'E') {    //entrance or exit point
+                if(this.roadDir[0] == 'E' || this.roadDir[0] == 'W')            //direction same for entrance and exit
+                        tempCar = this.dequeueStreet();
+                else if(this.roadDir[0] == 'N' || this.roadDir[0] == 'S')
+                        tempCar = this.dequeueAvenue();
+        } else if(this.control[0] != 'R')
+                tempCar = this.dequeueStreet();
+        else if(this.control[1] != 'R')
+                tempCar = this.dequeueAvenue();
+        if(tempCar != null) {
+                tempCar.isQueued = false;
+                tempCar.nextInLine = null;
+        }
+        return tempCar;
+	}
+	
+	 private Car dequeueStreet() {
+         if(!this.carInQueueStreet)
+                 return null;
+         queuedCarsInStreet --;
+         Car tempCar = this.firstInLineStreet;
+         this.firstInLineStreet = tempCar.nextInLine;
+         if(this.firstInLineStreet == null)
+                 this.carInQueueStreet = false;
+         tempCar.nextInLine = null;
+         return tempCar;
+	 }
+	
+	 private Car dequeueAvenue() {
+         if(this.carInQueueAvenue == false)
+                 return null;
+         queuedCarsInAvenue --;
+         Car tempCar = this.firstInLineAvenue;
+         this.firstInLineAvenue = tempCar.nextInLine;
+         if(this.firstInLineAvenue == null)
+                 carInQueueAvenue = false;
+         tempCar.nextInLine = null;
+         return tempCar;
+	 } 
+	 
 	public boolean nextControl() {
-		if(pointID[0] != '3' || pointID[4] != '4')		//not street or avenue
+		if(this.control[0] == 'E')		//not street or avenue
 			return false;
 		else if(control[0] == 'R') {
+			
+			//Code added
+			
+			
 			if(control[1] == 'R')
 				control[0] = 'G';
 			else if(control[1] == 'G')

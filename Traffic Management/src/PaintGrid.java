@@ -27,88 +27,98 @@ public class PaintGrid extends Canvas implements Runnable {
 	Image offscreen;
 	Graphics offgraphics;
 	
-	private synchronized void relax() {
-		TrafficPoint tempPoint;
-		Car tempCar = null;
-		int speed = 0;
-		boolean wait = false;
-		for(Map.Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
-			tempPoint = entry.getValue();
-			//check if entrance point && road in front clear
-			if(!tempPoint.emptyQueue()) {
-				//see if a car is blocking entrance
-				for(Map.Entry<char[], Car> entry2 : Car.getEntrySet()) {
-					wait = Math.abs(tempPoint.distance(entry2.getValue())) < (CarLength+3);
-					//replace 2 with car clearance pixels from configuration
-					if(wait) break;
-				}
-				if(!wait) {
-					tempCar = tempPoint.Dequeue();
-					tempCar.enterGrid();
-					if(tempCar.lane == 'M')
-						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[1][1], 0, 2);
-					else if((tempPoint.roadDir[0] == 'E' && tempCar.lane == 'R') || 
-							(tempPoint.roadDir[0] == 'W' && tempCar.lane == 'L'))
-						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][0], 0, 2);
-					else if((tempPoint.roadDir[0] == 'E' && tempCar.lane == 'L') || 
-							(tempPoint.roadDir[0] == 'W' && tempCar.lane == 'R'))
-						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[2][0], 0, 2);
-					else if((tempPoint.roadDir[0] == 'N' && tempCar.lane == 'R') || 
-							(tempPoint.roadDir[0] == 'S' && tempCar.lane == 'L'))
-						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][0], 0, 2);
-					else if((tempPoint.roadDir[0] == 'N' && tempCar.lane == 'L') ||
-							(tempPoint.roadDir[0] == 'S' && tempCar.lane == 'R'))
-						tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][2], 0, 2);
-					tempCar.setDirection(tempPoint.roadDir[0]);
-					//direction same for entrance and exit points
-					tempCar.nextPoint = (tempPoint.nextStreet == null)? 
-							tempPoint.nextAvenue : tempPoint.nextStreet;
-					tempCar.phase = 'M';
-				}
-			}
-			wait = false;
-		}
-		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
-			if(entry.getValue().phase != 'M') continue;		//if car not moving
-			tempCar = entry.getValue();
-			for(Map.Entry<char[], Car> entry1 : Car.getEntrySet()) {
-				if(entry1.getValue().phase != 'M') continue;	//if car not moving
-				if(tempCar.road != entry1.getValue().road) continue;
-				//replace constant with clearance
-				if(tempCar.dir == 'N' || tempCar.dir == 'W') {
-					if(tempCar.distance(entry1.getValue()) < 0)
-						wait = Math.abs(tempCar.distance(entry1.getValue())) < (CarLength+5);
-				} else if(tempCar.dir == 'S' || tempCar.dir == 'E') {
-					if(tempCar.distance(entry1.getValue()) > 0)
-						wait = Math.abs(tempCar.distance(entry1.getValue())) < (CarLength+5);
-				}
-				if(wait) break;
-			}
-			if(!wait) {
-				speed = 3;
-				if(tempCar.dir == 'N')
-					tempCar.moveXY(new int[]{0, speed});
-				else if(tempCar.dir == 'S')
-					tempCar.moveXY(new int[]{0, -1*speed});
-				else if(tempCar.dir == 'E')
-					tempCar.moveXY(new int[]{-1*speed, 0});
-				else if(tempCar.dir == 'W')
-					tempCar.moveXY(new int[]{speed, 0});
-			}
-			wait = false;
-		}
-		wait = false;
-		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
-			wait = entry.getValue().phase != 'S';
-			if(wait) break;
-		}
-		if (!wait && Car.carCount != 0) {
-			this.stop();
-			System.out.println("Execution stopped");
-			return;
-		}	
-		repaint();
-	}
+	 private synchronized void relax() {
+		 TrafficPoint tempPoint;
+		 Car tempCar = null;
+		 int speed = 0;
+		 boolean wait = false;
+		 for(Map.Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
+			 if(entry.getValue().control[1] != 'N') continue;                //not entrance point
+		     	tempPoint = entry.getValue();
+		                         //check if entrance point && road in front clear
+		        if(!tempPoint.emptyQueue()) {
+		                                 //see if a car is blocking entrance
+		        	for(Map.Entry<char[], Car> entry2 : Car.getEntrySet()) {
+		        		if(entry2.getValue().phase != 'M') continue;
+		                	wait = Math.abs(tempPoint.distance(entry2.getValue())) < 
+		                                                         (CarLength+Clearance);
+		                                         //replace 2 with car clearance pixels from configuration
+		                	if(wait) break;
+		                                 }
+		                    if(!wait) {
+		                    	tempCar = tempPoint.Dequeue();
+		                        tempCar.enterGrid();
+		                        if(tempCar.lane == 'M')
+		                        	tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[1][1], 0, 2);
+		                            else if((tempPoint.roadDir[0] == 'E' && tempCar.lane == 'R') || 
+		                                                         (tempPoint.roadDir[0] == 'W' && tempCar.lane == 'L'))
+		                            	tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][0], 0, 2);
+		                            else if((tempPoint.roadDir[0] == 'E' && tempCar.lane == 'L') || 
+		                                                         (tempPoint.roadDir[0] == 'W' && tempCar.lane == 'R'))
+		                            	tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[2][0], 0, 2);
+		                            else if((tempPoint.roadDir[0] == 'N' && tempCar.lane == 'R') || 
+		                                                         (tempPoint.roadDir[0] == 'S' && tempCar.lane == 'L'))
+		                            	tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][0], 0, 2);
+		                            else if((tempPoint.roadDir[0] == 'N' && tempCar.lane == 'L') ||
+		                                                         (tempPoint.roadDir[0] == 'S' && tempCar.lane == 'R'))
+		                            	tempCar.xy = Arrays.copyOfRange(tempPoint.sectors[0][2], 0, 2);
+		                        		tempCar.setDirection(tempPoint.roadDir[0]);
+		                                         //direction same for entrance and exit points
+		                                tempCar.nextPoint = (tempPoint.nextStreet == null)? 
+		                                                         tempPoint.nextAvenue : tempPoint.nextStreet;
+		                                         //tempCar.phase = 'M'; fixed in enterGrid()
+		                    		}
+		                 		}
+		                 	wait = false;
+		                 }
+		 			for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
+		 				if(entry.getValue().phase != 'M') continue;             //if car not moving
+		 					tempCar = entry.getValue();
+		                    for(Map.Entry<char[], Car> entry1 : Car.getEntrySet()) {
+		                    	if(entry1.getValue().phase != 'M') continue;    //if car not moving
+		                        if(tempCar.road != entry1.getValue().road) continue;
+		                                 //replace constant with clearance
+		                        if(tempCar.dir == 'N' || tempCar.dir == 'W') {                  //positive directions
+		                        	if(tempCar.distance(entry1.getValue()) < 0)
+		                        		wait = (Math.abs(tempCar.distance(entry1.getValue())) < 
+		                                                                 2*CarLength);
+		                        	} else if(tempCar.dir == 'S' || tempCar.dir == 'E') {   //negative directions
+		                        			if(tempCar.distance(entry1.getValue()) > 0)
+		                                                 wait = (Math.abs(tempCar.distance(entry1.getValue())) < 
+		                                                                 2*CarLength);
+		                        			}
+		                        			if(wait) {
+		                                         tempCar.nextPoint.queueCar(tempCar);
+		                                         break;
+		                        			}
+		                    		}
+		                         if(!wait) {
+		                                 tempCar.nextPoint.Dequeue(tempCar);
+		                                 speed = 5;              //(int)((CarLength+Clearance)/2);
+		                                 if(tempCar.dir == 'N')
+		                                         tempCar.moveXY(new int[]{0, speed});
+		                                 else if(tempCar.dir == 'S')
+		                                         tempCar.moveXY(new int[]{0, -1*speed});
+		                                 else if(tempCar.dir == 'E')
+		                                         tempCar.moveXY(new int[]{-1*speed, 0});
+		                                 else if(tempCar.dir == 'W')
+		                                         tempCar.moveXY(new int[]{speed, 0});
+		                         }
+		                         wait = false;
+		                 }
+		                 repaint();
+		                 wait = false;
+		                 for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
+		                         wait = entry.getValue().phase != 'S';
+		                         if(wait) break;
+		                 }
+		    if (!wait && Car.carCount != 0) {
+		             this.stop();
+		             System.out.println("\nExecution stopped");
+		             return;
+		    } 
+	 }
+	
 	
 	public synchronized void paint(Graphics g) {
 		Dimension d = new Dimension(Road.xAccumulativePosition, 

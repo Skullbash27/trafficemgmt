@@ -23,7 +23,7 @@ public class Frame extends JFrame {
 				config.MinimumBlockSide, config.MaximumBlockSide, 
 				config.CarLength, config.CarWidth, config.Clearance);
 		paintGrid = new PaintGrid(config.CarLength, config.CarWidth, config.Clearance);
-		lights = new Schedule('D', config.MaxGreenTime, config.YellowTime);
+		lights = new Schedule('S', config.MaxGreenTime, config.YellowTime);
 		toolBar = new ToolBar();
 		
 		toolBar.setDisplayEvents(new DisplayEvents(){

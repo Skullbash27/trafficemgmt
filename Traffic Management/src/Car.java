@@ -112,6 +112,7 @@ public class Car {
 				this.phase = 'S';
 			//Code added here
 				exitTime = System.currentTimeMillis();
+				this.nextPoint.queueCar(this);
 				tempStringExit = Long.toString(exitTime);
 			//Code added here	
 			return;
@@ -119,18 +120,23 @@ public class Car {
 		if(Math.abs(this.nextPoint.distance(this)) < 7) {		//replace constant with function of CarWidth
 			if(this.dir == 'N' || this.dir == 'S') {
 				if(this.nextPoint.control[1] != 'R') {
+					this.nextPoint.Dequeue(this);
 					this.nextPoint = this.nextPoint.nextAvenue;
 					return;
 				}
 			} else if(this.dir == 'E' || this.dir == 'W') {
 				if(this.nextPoint.control[0] != 'R') {
+					this.nextPoint.Dequeue(this);
 					this.nextPoint = this.nextPoint.nextStreet;
 					return;
 				}
 			}
-		} else return;
+		} else {
+			return;
+		}
 		this.xy[0] -= dist[0];
 		this.xy[1] -= dist[1];
+		this.nextPoint.queueCar(this);
 		//Code added here
 		this.carDistance -= (dist[0] == 0)? Math.abs(dist[1]):Math.abs(dist[0]);
 		//Code added here
@@ -140,20 +146,47 @@ public class Car {
 		this.dir = direction;
 	}
 	
-	public boolean queueCar(Car nextInLine) {
+	public boolean queueCar(Car nextCar) {
+		
+		/*
 		if(isQueued)			//continue till last one and queue to it
 			return this.nextInLine.queueCar(nextInLine);
 		this.nextInLine = nextInLine;
 		isQueued = true;
-		return isQueued;
+		return isQueued; */
+		
+		if(this == nextCar) {
+              return false;
+		} if(this.isQueued) {                       //continue till last one and queue to it
+              return this.nextInLine.queueCar(nextCar);
+		} else {
+              this.nextInLine = nextCar;
+              isQueued = true;
+              return isQueued;
+      }
+		
 	}
+	
 	public Car Dequeue() {
+		/*
 		if(isQueued == false)
 			return null;
 		Car tempCar = this.nextInLine;
 		this.nextInLine = tempCar.nextInLine;
 		if(this.nextInLine == null)
 			isQueued = false;
+		return tempCar;
+		*/		
+		if(isQueued == false) {
+            return null;
+		}
+		Car tempCar = this.nextInLine;
+		this.nextInLine = tempCar.nextInLine;
+		if(this.nextInLine == null) {
+            isQueued = false;
+		}
+		tempCar.isQueued = false;
+		tempCar.nextInLine = null;
 		return tempCar;
 	}
 	
