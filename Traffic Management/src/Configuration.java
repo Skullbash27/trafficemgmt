@@ -30,7 +30,7 @@ public class Configuration {
 	// Simulation class:
 	//	Exponential Car Insertion Rate
 	//	Number of Cars
-	protected int Lambda = 100;
+	protected int Lambda = 10;
 	protected int NumberOfCars = 1000;
 		
 	// Grid class:

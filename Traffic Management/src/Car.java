@@ -29,13 +29,14 @@ public class Car {
 	 * char[3:7]=unique ID
 	 */
 	//Code added here
-	public long exitTime;
 	public long entryTime;
-	String tempStringExit;
+	public long exitTime;
 	public long carDistance;
+	//String tempStringExit;
 	//Code added here
 	
 	protected boolean isQueued = false;
+	//protected boolean inAQueue = false;
 	protected Car nextInLine = null;
 	//true=car is attached to a queue, false=car running in grid
 	protected char phase = 'Q';
@@ -66,6 +67,7 @@ public class Car {
 		while(i<numberOfCars) {
 			roadID = (char[]) roadKeysRand[new Random().nextInt(roadKeysRand.length)];
 			tempRoad = Road.getRoad(roadID);
+			//if(tempRoad.roadDir != 'E') continue;
 			entrance = tempRoad.entrancePoint;
 			exit = tempRoad.exitPoint;
 			tempCar = new Car(carCount+1, entrance, exit);
@@ -79,7 +81,7 @@ public class Car {
 			carCount++;
 			i++;
 		}
-		System.out.println(numberOfCars + " Added to the Grid");
+		System.out.println(numberOfCars + " Cars Added to the Grid");
 	}
 	
 	public static Set<Map.Entry<char[] ,Car>> getEntrySet() {
@@ -88,9 +90,7 @@ public class Car {
 	
 	//Code added here
 	public boolean enterGrid() {
-		if (phase != 'Q') {
-			return false;
-		}
+		if (phase != 'Q') return false;
 		this.phase = 'M';
 		this.entryTime = System.currentTimeMillis();
 		return true;
@@ -98,54 +98,60 @@ public class Car {
 	//Code added here
 	
 	public void moveXY(int[] dist) {
-		this.xy[0] += dist[0];
-		this.xy[1] += dist[1];
-		
-		//Code added here
-		this.carDistance += (dist[0] == 0)? Math.abs(dist[1]):Math.abs(dist[0]);
-		//Code added here
-		
 		
 		if(this.nextPoint.control[1] == 'X') {			//next point is exit point
+			this.xy[0] += dist[0];
+			this.xy[1] += dist[1];
+			this.carDistance += (dist[0] == 0)? Math.abs(dist[1]):Math.abs(dist[0]);
 			if(this.xy[0] < 0 || this.xy[0] > Road.xAccumulativePosition ||
-					this.xy[1] < 0 || this.xy[1] > Road.yAccumulativePosition)
+					this.xy[1] < 0 || this.xy[1] > Road.yAccumulativePosition) {
 				this.phase = 'S';
-			//Code added here
 				exitTime = System.currentTimeMillis();
-				tempStringExit = Long.toString(exitTime);
-			//Code added here	
+				//this.nextPoint.queueCar(this);
+			}
 			return;
 		}
-		if(Math.abs(this.nextPoint.distance(this)) < 7) {		//replace constant with function of CarWidth
-			if(this.dir == 'N' || this.dir == 'S') {
-				if(this.nextPoint.control[1] != 'R') {
+
+		boolean[] decide = this.nextPoint.intersectionLogic(this, dist);
+		if(decide[0]) {
+			this.xy[0] += dist[0];
+			this.xy[1] += dist[1];
+			this.nextPoint.Dequeue(this);
+			this.carDistance += (dist[0] == 0)? Math.abs(dist[1]):Math.abs(dist[0]);
+			
+			if(decide[1]) {
+				this.nextPoint.Dequeue(this);
+				if(this.dir == 'N' || this.dir == 'S') {
 					this.nextPoint = this.nextPoint.nextAvenue;
-					return;
-				}
-			} else if(this.dir == 'E' || this.dir == 'W') {
-				if(this.nextPoint.control[0] != 'R') {
+				} else if(this.dir == 'E' || this.dir == 'W') {
 					this.nextPoint = this.nextPoint.nextStreet;
-					return;
 				}
+				
 			}
-		} else return;
-		this.xy[0] -= dist[0];
-		this.xy[1] -= dist[1];
-		//Code added here
-		this.carDistance -= (dist[0] == 0)? Math.abs(dist[1]):Math.abs(dist[0]);
-		//Code added here
+		} else {
+			this.nextPoint.queueCar(this);
+		}
 	}
 	
 	public void setDirection(char direction) {
 		this.dir = direction;
 	}
 	
-	public boolean queueCar(Car nextInLine) {
-		if(isQueued)			//continue till last one and queue to it
-			return this.nextInLine.queueCar(nextInLine);
-		this.nextInLine = nextInLine;
-		isQueued = true;
-		return isQueued;
+	public boolean queueCar(Car nextCar) {
+		//if(nextCar.inAQueue) return false;
+		if(this == nextCar) {
+			//System.out.println("Same car queuing itself");
+			return false;
+			//System.exit(0);
+		}
+		if(this.isQueued)			//continue till last one and queue to it
+			return this.nextInLine.queueCar(nextCar);
+		else {
+			this.nextInLine = nextCar;
+			//nextCar.inAQueue = true;
+			isQueued = true;
+			return isQueued;
+		}
 	}
 	public Car Dequeue() {
 		if(isQueued == false)
@@ -154,13 +160,18 @@ public class Car {
 		this.nextInLine = tempCar.nextInLine;
 		if(this.nextInLine == null)
 			isQueued = false;
+		tempCar.isQueued = false;
+		//tempCar.inAQueue = false;
+		tempCar.nextInLine = null;
 		return tempCar;
 	}
 	
 	public int distance(Car tempCar) {
-		if(this.xy[0] == tempCar.xy[0])
+		if((this.dir == tempCar.dir) && (this.dir == 'N' || this.dir == 'S') && 
+				(this.xy[0] == tempCar.xy[0]))
 			return this.xy[1] - tempCar.xy[1];
-		else if(this.xy[1] == tempCar.xy[1])
+		else if((this.dir == tempCar.dir) && (this.dir == 'E' || this.dir == 'W') && 
+				(this.xy[1] == tempCar.xy[1]))
 			return this.xy[0] - tempCar.xy[0];
 		else
 			return Integer.MAX_VALUE;
