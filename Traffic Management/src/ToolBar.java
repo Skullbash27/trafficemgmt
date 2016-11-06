@@ -20,7 +20,7 @@ public class ToolBar extends JPanel implements ActionListener {
 		start = new JButton("Start");
 		stop = new JButton("Stop");		
 		start.addActionListener(this);
-		stop.addActionListener(this);		
+		stop.addActionListener(this);
 		setLayout(new FlowLayout());		
 		add(start);
 		add(stop);
@@ -36,10 +36,15 @@ public class ToolBar extends JPanel implements ActionListener {
 		if (clicked == start) {
 			start.setEnabled(false);
 			isRunning = true;
+			/*
+			ScheduleSelect schWindow = new ScheduleSelect();
+			schWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			schWindow.setVisible(true); */
+			
 			if (events != null) {
 				events.draw();		
 				
-			}				
+			}
 		}		
 		else if (isRunning == true) {
 			if (events != null) {

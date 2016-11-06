@@ -15,6 +15,7 @@ public class Frame extends JFrame {
 	protected Configuration config;
 	protected Grid grid;
 	public static int carCount = 15; //added by Austin
+	public char schOption = 'D'; //Can be changed by ScheduleSelect
 	
 	public Frame() {
 		super("Traffic Management System");
@@ -23,13 +24,13 @@ public class Frame extends JFrame {
 				config.MinimumBlockSide, config.MaximumBlockSide, 
 				config.CarLength, config.CarWidth, config.Clearance);
 		paintGrid = new PaintGrid(config.CarLength, config.CarWidth, config.Clearance);
-		lights = new Schedule('D', config.MaxGreenTime, config.YellowTime);
 		carCount = config.NumberOfCars;
 		toolBar = new ToolBar();
 		
 		toolBar.setDisplayEvents(new DisplayEvents(){
 			public void draw() {
 				paintGrid.start();
+				lights = new Schedule(schOption, config.MaxGreenTime, config.YellowTime);
 				lights.start();
 				Car.addCars(carCount, grid);
 				
