@@ -254,6 +254,11 @@ public class PaintGrid extends Canvas implements Runnable {
 		}
 	}
 	
+	@Override   
+    public Dimension getPreferredSize() {
+        return new Dimension(Road.xAccumulativePosition, 
+				Road.yAccumulativePosition);
+    }
 	public void start() {
 		gridPaint = new Thread(this);
 		isRunning = true;

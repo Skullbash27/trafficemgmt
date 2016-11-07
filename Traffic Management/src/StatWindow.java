@@ -17,10 +17,11 @@ public class StatWindow extends JFrame {
 		textArea = new JTextArea();
 		add(textArea, BorderLayout.CENTER);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLocationRelativeTo(null);
 		setVisible(true);
 		resultDisplayed();
 	}
-	
+		
 	public void resultDisplayed() {		
 		textArea.append("Final statistics:\n");
 		stats.carStatistics();

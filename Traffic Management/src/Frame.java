@@ -24,6 +24,7 @@ public class Frame extends JFrame {
 				config.CarLength, config.CarWidth, config.Clearance);
 		paintGrid = new PaintGrid(config.CarLength, config.CarWidth, config.Clearance);
 		lights = new Schedule('D', config.MaxGreenTime, config.YellowTime);
+		carCount = config.NumberOfCars;
 		toolBar = new ToolBar();
 		
 		toolBar.setDisplayEvents(new DisplayEvents(){
@@ -34,12 +35,16 @@ public class Frame extends JFrame {
 				
 			}			
 		});
-		
+				
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		add(toolBar, BorderLayout.PAGE_START);
 		add(paintGrid, BorderLayout.CENTER);
-		setSize(frameWidth, frameHeight);
+		//setSize(frameWidth, frameHeight);
+		pack();
+		setLocationRelativeTo(null);
 		setVisible(true);
+    		
+        
 	}	
 }
