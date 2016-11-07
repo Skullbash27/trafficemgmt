@@ -10,8 +10,8 @@ public class Frame extends JFrame {
 	protected PaintGrid paintGrid;
 	protected Schedule lights;
 	protected ToolBar toolBar;
-	protected final int frameWidth = 900;
-	protected final int frameHeight = 700;
+	protected final int frameWidth = 800;
+	protected final int frameHeight = 600;
 	protected Configuration config;
 	protected Grid grid;
 	public static int carCount = 15; //added by Austin

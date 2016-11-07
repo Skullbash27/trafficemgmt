@@ -33,12 +33,15 @@ public class PaintGrid extends Canvas implements Runnable {
 		int speed = 0;
 		boolean wait = false;
 		for(Map.Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
+			if(entry.getValue().control[1] != 'N') continue;		//not entrance point
 			tempPoint = entry.getValue();
 			//check if entrance point && road in front clear
 			if(!tempPoint.emptyQueue()) {
 				//see if a car is blocking entrance
 				for(Map.Entry<char[], Car> entry2 : Car.getEntrySet()) {
-					wait = Math.abs(tempPoint.distance(entry2.getValue())) < (CarLength+3);
+					if(entry2.getValue().phase != 'M') continue;
+					wait = Math.abs(tempPoint.distance(entry2.getValue())) < 
+							(CarLength+Clearance);
 					//replace 2 with car clearance pixels from configuration
 					if(wait) break;
 				}
@@ -63,7 +66,7 @@ public class PaintGrid extends Canvas implements Runnable {
 					//direction same for entrance and exit points
 					tempCar.nextPoint = (tempPoint.nextStreet == null)? 
 							tempPoint.nextAvenue : tempPoint.nextStreet;
-					tempCar.phase = 'M';
+					//tempCar.phase = 'M'; fixed in enterGrid()
 				}
 			}
 			wait = false;
@@ -75,17 +78,23 @@ public class PaintGrid extends Canvas implements Runnable {
 				if(entry1.getValue().phase != 'M') continue;	//if car not moving
 				if(tempCar.road != entry1.getValue().road) continue;
 				//replace constant with clearance
-				if(tempCar.dir == 'N' || tempCar.dir == 'W') {
+				if(tempCar.dir == 'N' || tempCar.dir == 'W') {			//positive directions
 					if(tempCar.distance(entry1.getValue()) < 0)
-						wait = Math.abs(tempCar.distance(entry1.getValue())) < (CarLength+5);
-				} else if(tempCar.dir == 'S' || tempCar.dir == 'E') {
+						wait = (Math.abs(tempCar.distance(entry1.getValue())) < 
+								2*CarLength);
+				} else if(tempCar.dir == 'S' || tempCar.dir == 'E') {	//negative directions
 					if(tempCar.distance(entry1.getValue()) > 0)
-						wait = Math.abs(tempCar.distance(entry1.getValue())) < (CarLength+5);
+						wait = (Math.abs(tempCar.distance(entry1.getValue())) < 
+								2*CarLength);
 				}
-				if(wait) break;
+				if(wait) {
+					tempCar.nextPoint.queueCar(tempCar);
+					break;
+				}
 			}
 			if(!wait) {
-				speed = 3;
+				tempCar.nextPoint.Dequeue(tempCar);
+				speed = 5;		//(int)((CarLength+Clearance)/2);
 				if(tempCar.dir == 'N')
 					tempCar.moveXY(new int[]{0, speed});
 				else if(tempCar.dir == 'S')
@@ -97,6 +106,7 @@ public class PaintGrid extends Canvas implements Runnable {
 			}
 			wait = false;
 		}
+		repaint();
 		wait = false;
 		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
 			wait = entry.getValue().phase != 'S';
@@ -104,10 +114,9 @@ public class PaintGrid extends Canvas implements Runnable {
 		}
 		if (!wait && Car.carCount != 0) {
 			this.stop();
-			System.out.println("Execution stopped");
+			System.out.println("\nExecution stopped");
 			return;
-		}	
-		repaint();
+		}
 	}
 	
 	public synchronized void paint(Graphics g) {

@@ -31,8 +31,12 @@ public class TrafficPoint {
 	 * second char avenue light status R=Red G=Green Y=Yellow
 	 * control 'EN'=entrance 'EX'=exit points
 	 */
-	protected Car firstInLine = null;
-	protected boolean carInQueue = false;
+	protected Car firstInLineS = null;
+	protected Car firstInLineA = null;
+	protected boolean carInQueueS = false;
+	protected boolean carInQueueA = false;
+	protected int queuedCarsS = 0;
+	protected int queuedCarsA = 0;
 	//queue of cars waiting
 	
 	public static boolean addControlPoits(Set<Map.Entry<char[] ,Road>> set) {
@@ -235,27 +239,148 @@ public class TrafficPoint {
 	}
 	
 	public boolean emptyQueue() {
-		return !carInQueue;
+		if(this.control[0] == 'E') {		//entrance or exit point
+			if(this.roadDir[0] == 'E' || this.roadDir[0] == 'W')		//direction same for entrance and exit
+				return !this.carInQueueS;
+			else if(this.roadDir[0] == 'N' || this.roadDir[0] == 'S')
+				return !this.carInQueueA;
+		} else
+			return !(this.carInQueueA && this.carInQueueS);
+		return false;
 	}
 	public boolean queueCar(Car nextInLine) {
-		if(carInQueue)			//continue till last one and queue to it
-			return this.firstInLine.queueCar(nextInLine);
-		this.firstInLine = nextInLine;
-		carInQueue = true;
-		return carInQueue;
+		/*System.out.print("Q\t");
+		System.out.print(this.pointID);
+		System.out.print("\t");
+		System.out.print(this.queuedCarsS+" "+this.queuedCarsA+"\t");
+		System.out.println(nextInLine.carID);*/
+		//if(nextInLine.inAQueue) return false;
+		//else nextInLine.inAQueue = true;
+		if(this.control[0] == 'E') {		//entrance or exit
+			if(this.roadDir[0] == 'E' || this.roadDir[0] == 'W')
+				return this.queueCarS(nextInLine);
+			else if(this.roadDir[0] == 'N' || this.roadDir[0] == 'S')
+				return this.queueCarA(nextInLine);
+		} else if(nextInLine.dir == this.roadDir[0])
+				return this.queueCarS(nextInLine);
+		else if(nextInLine.dir == this.roadDir[1])
+			return this.queueCarA(nextInLine);
+		else
+			System.out.println("Queuing Problem");
+		return false;
 	}
+	private boolean queueCarS(Car nextInLine) {
+		if(this.carInQueueS) {			//continue till last one and queue to it
+			if(this.firstInLineS.queueCar(nextInLine)) {	//queue to next car
+				queuedCarsS++;			//if car not previously queued here add it
+				return true;
+			} else			//car queued in previous cycle
+				return false;
+		}
+		queuedCarsS++;
+		this.firstInLineS = nextInLine;
+		this.carInQueueS = true;
+		return this.carInQueueS;
+	}
+	private boolean queueCarA(Car nextInLine) {
+		if(this.carInQueueA) {
+			if(this.firstInLineA.queueCar(nextInLine)) {
+				queuedCarsA++;
+				return true;
+			} else
+				return false;
+		}
+		queuedCarsA++;
+		this.firstInLineA = nextInLine;
+		this.carInQueueA = true;
+		return this.carInQueueA;
+	}
+	
+	public boolean Dequeue(Car tempCar1) {		//dequeue a car from a traffic point
+		/*System.out.print("DS\t");
+		System.out.print(this.pointID);
+		System.out.print("\t");
+		System.out.print(this.queuedCarsS+" "+this.queuedCarsA+"\t");
+		System.out.print(tempCar1.carID);*/
+		Car tempCar2;
+		if(this.roadDir[0] == tempCar1.dir)
+			tempCar2 = this.firstInLineS;
+		else if(this.roadDir[1] == tempCar1.dir)
+			tempCar2 = this.firstInLineA;
+		else return false;
+		boolean found = (tempCar1 == tempCar2);
+		if(found) {
+			this.Dequeue();
+			return found;
+		}
+		while(!found && tempCar2 != null) {
+			//System.out.print(".");
+			if(tempCar1 == tempCar2.nextInLine) {
+				found = true;
+				tempCar2.Dequeue();
+				//tempCar1.inAQueue = false;
+			} else
+				tempCar2 = tempCar2.nextInLine;
+		}
+		if(found) {
+			if(this.roadDir[0] == tempCar1.dir)
+				this.queuedCarsS--;
+			else if(this.roadDir[1] == tempCar1.dir)
+				this.queuedCarsA--;
+		}
+		return found;
+	}
+	
 	public Car Dequeue() {
-		if(carInQueue == false)
+		Car tempCar = null;
+		/*System.out.print("D\t");
+		System.out.print(this.pointID);
+		System.out.print("\t");
+		System.out.print(this.queuedCarsS+" "+this.queuedCarsA+"\t");*/
+		if(this.control[0] == 'E') {	//entrance or exit point
+			if(this.roadDir[0] == 'E' || this.roadDir[0] == 'W')		//direction same for entrance and exit
+				tempCar = this.dequeueS();
+			else if(this.roadDir[0] == 'N' || this.roadDir[0] == 'S')
+				tempCar = this.dequeueA();
+		} else if(this.control[0] != 'R')
+			tempCar = this.dequeueS();
+		else if(this.control[1] != 'R')
+			tempCar = this.dequeueA();
+		if(tempCar != null) {
+			tempCar.isQueued = false;
+			//tempCar.inAQueue = false;
+			tempCar.nextInLine = null;
+		} /*else
+			System.out.println("Dequeuing Problem");*/
+		return tempCar;
+	}
+	private Car dequeueS() {
+		if(!this.carInQueueS)
 			return null;
-		Car tempCar = this.firstInLine;
-		this.firstInLine = tempCar.nextInLine;
-		if(this.firstInLine == null)
-			carInQueue = false;
+		queuedCarsS --;
+		Car tempCar = this.firstInLineS;
+		this.firstInLineS = tempCar.nextInLine;
+		if(this.firstInLineS == null)
+			this.carInQueueS = false;
+		//System.out.println(tempCar.carID);
+		tempCar.nextInLine = null;
+		return tempCar;
+	}
+	private Car dequeueA() {
+		if(this.carInQueueA == false)
+			return null;
+		queuedCarsA --;
+		Car tempCar = this.firstInLineA;
+		this.firstInLineA = tempCar.nextInLine;
+		if(this.firstInLineA == null)
+			carInQueueA = false;
+		//System.out.println(tempCar.carID);
+		tempCar.nextInLine = null;
 		return tempCar;
 	}
 	
 	public boolean nextControl() {
-		if(pointID[0] != '3' || pointID[4] != '4')		//not street or avenue
+		if(this.control[0] == 'E')		//not street or avenue
 			return false;
 		else if(control[0] == 'R') {
 			if(control[1] == 'R')
@@ -312,5 +437,135 @@ public class TrafficPoint {
 				return this.sectors[2][0][0] - tempCar.xy[0];
 		}
 		return Integer.MAX_VALUE;
+	}
+	//FUNCTION NEEDS CODE OPTIMIZATION
+	public boolean[] intersectionLogic(Car tempCar, int[] dist) {
+		/*
+		 * [0] true=move, false=don't move, [1] true=dequeue, false=don't dequeue
+		 */
+		if(this != tempCar.turningPoint1 && this != tempCar.turningPoint2) {	//going straight
+			boolean[] TT = new boolean[]{true, true};
+			boolean[] TF = new boolean[]{true, false};
+			boolean[] FF = new boolean[]{false, false};
+			int i, j, di, dj;
+			for(i=0; i<4; i++) {
+				if(i == 3) break;
+				if(tempCar.xy[0] <= this.sectors[0][i][0]) break;
+			}
+			for(j=0; j<4; j++) {
+				if(j == 3) break;
+				if(tempCar.xy[1] <= this.sectors[j][0][1]) break;
+			}
+			for(di=0; di<4; di++) {
+				if(di == 3) break;
+				if((tempCar.xy[0]+dist[0]) <= this.sectors[0][di][0]) break;
+			}
+			for(dj=0; dj<4; dj++) {
+				if(dj == 3) break;
+				if((tempCar.xy[1]+dist[1]) <= this.sectors[dj][0][1]) break;
+			}
+			
+			/*System.out.print(tempCar.carID);
+			System.out.println("\t"+tempCar.xy[0]+"\t"+tempCar.xy[1]+"\t\t"+i+"\t"+j);
+			System.out.println("\t"+this.distance(tempCar));
+			System.out.print(this.pointID);
+			System.out.println("\t"+this.sectors[0][0][0]+"\t"+this.sectors[0][1][0]+"\t"+this.sectors[0][2][0]+
+					"\t\t"+this.sectors[0][0][1]+"\t"+this.sectors[1][0][1]+"\t"+this.sectors[2][0][1]+"\n");*/
+			
+			if(tempCar.dir == 'N') {		//difference between js, i == di
+				if(dj == 0 && this.distance(tempCar) > 12)	//didn't reach intersection
+					return TF;
+				else if(dj == 0 && this.control[1] == 'R') {
+					return FF;
+				} else if(j == dj) {			//moving in same square - sector
+					return TF;
+				} else if(dj == 0 || dj == 1) {
+					if(!this.flag[dj][i]) {
+						this.flag[dj][i] = true;
+						return TF;
+					} return FF;
+				} else if(dj == 2) {
+					if(!this.flag[dj][i]) {
+						this.flag[0][i] = false;
+						this.flag[dj][i] = true;
+						return TF;
+					} return FF;
+				} else if(dj == 3) {
+					this.flag[1][i] = false;
+					this.flag[2][i] = false;
+					return TT;
+				}
+			} else if(tempCar.dir == 'S') {
+				if(dj == 3 && this.distance(tempCar) < -12) {
+					return TF;
+				} else if(dj == 3 && this.control[1] == 'R') {
+					return FF;
+				} else if(j == dj) {
+					return TF;
+				} else if(dj == 3 || dj == 2) {
+					if(!this.flag[dj][i]) {
+						this.flag[dj][i] = true;
+						return TF;
+					} return FF;
+				} else if(dj == 1) {
+					if(!this.flag[dj][i]) {
+						this.flag[2][i] = false;
+						this.flag[dj][i] = true;
+						return TF;
+					} return FF;
+				} else if(dj == 0) {
+					this.flag[1][i] = false;
+					this.flag[2][i] = false;
+					return TT;
+				}
+			} else if(tempCar.dir == 'E') {
+				if(di == 3 && this.distance(tempCar) < -12) {
+					return TF;
+				} else if(di == 3 && this.control[0] == 'R') {
+					return FF;
+				} else if(i == di) {
+					return TF;
+				} else if(di == 3 || di == 2) {
+					if(!this.flag[j][di]) {
+						this.flag[j][di] = true;
+						return TF;
+					} return FF;
+				} else if(di == 1) {
+					if(!this.flag[j][di]) {
+						this.flag[j][2] = false;
+						this.flag[j][di] = true;
+						return TF;
+					} return FF;
+				} else if(di == 0) {
+					this.flag[j][1] = false;
+					this.flag[j][2] = false;
+					return TT;
+				}
+			} else if(tempCar.dir == 'W') {
+				if(di == 0 && this.distance(tempCar) > 12) {
+					return TF;
+				} else if(di == 0 && this.control[0] == 'R') {
+					return FF;
+				} else if(i == di) {
+					return TF;
+				} else if(di == 0 || di == 1)	{
+					if(!this.flag[j][di]) {
+						this.flag[j][di] = true;
+						return TF;
+					} return FF;
+				} else if(di == 2) {
+					if(!this.flag[j][di]) {
+						this.flag[j][0] = false;
+						this.flag[j][di] = true;
+						return TF;
+					} return FF;
+				} else if(di == 3) {
+					this.flag[j][1] = false;
+					this.flag[j][2] = false;
+					return TT;
+				}
+			}
+		}
+		return new boolean[]{false, false};
 	}
 }
