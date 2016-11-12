@@ -1,0 +1,73 @@
+import java.util.Map;
+import java.util.Map.Entry;
+
+public class Schedule implements Runnable{
+	
+	private int greenTime = 5000;
+	private int yellowTime = 2000;
+	private int sleepTime = 100;
+	
+	private boolean isRunning = false;
+	
+	private Thread lightSchedule;
+	char scheduleType = 'D';
+	/*
+	 * D=dumb scheduling
+	 * S=self scheduling
+	 * C=coordinated scheduling
+	 * V=convoy scheduling
+	 */
+	
+	public Schedule(char scheduleType, int greenTime, int yellowTime) {
+		this.scheduleType = scheduleType;
+		this.greenTime = greenTime;
+		this.yellowTime = yellowTime;
+		sleepTime = 100;
+	}
+	
+	private synchronized void workTime() {
+		TrafficPoint tempPoint = null;
+		if(scheduleType == 'D') {
+			for(Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
+				tempPoint = entry.getValue();
+				if(tempPoint.control[0] != 'E') { 		//not entrance or exit
+					tempPoint.nextControl();
+					if(tempPoint.control[0] == 'G' || tempPoint.control[1] == 'G')
+						sleepTime = greenTime;
+					else if(tempPoint.control[0] == 'Y' || tempPoint.control[1] == 'Y')
+						sleepTime = yellowTime;
+				}
+			}
+			
+		} else if(scheduleType == 'S') {
+			TrafficPoint tempPoint = null;
+			for(Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
+				tempPoint = entry.getValue();
+				
+			}
+		}
+	}
+	
+	@Override
+	public void run() {
+		while (isRunning) {
+			workTime();
+			try {
+				Thread.sleep(sleepTime);
+			} catch (InterruptedException e) {
+				break;
+			}
+		}
+	}
+	
+	public void start() {
+		if(lightSchedule == null)
+			lightSchedule = new Thread(this);
+		isRunning = true;
+		lightSchedule.start();
+	}
+	public void pause() {
+		lightSchedule.interrupt();
+		isRunning = false;
+	}
+}
