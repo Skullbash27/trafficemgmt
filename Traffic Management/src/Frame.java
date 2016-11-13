@@ -14,25 +14,44 @@ public class Frame extends JFrame {
 	protected final int frameHeight = 600;
 	protected Configuration config;
 	protected Grid grid;
-	public static int carCount = 15; //added by Austin
+	/*
+	 * communicating configuration variables to classes through static variables
+	 */
+	protected static int carSpeed, carAcceleration, carLength, 
+			carWidth, Clearance, carCount, fullDistance;
 	
 	public Frame() {
 		super("Traffic Management System");
 		config  = new Configuration("traffic.conf");
-		grid  = new Grid(config.NumberOfStreets, config.NumberOfAvenues, 
-				config.MinimumBlockSide, config.MaximumBlockSide, 
-				config.CarLength, config.CarWidth, config.Clearance);
-		paintGrid = new PaintGrid(config.CarLength, config.CarWidth, config.Clearance);
-		lights = new Schedule('D', config.MaxGreenTime, config.YellowTime);
+		
+		carSpeed = config.CarSpeed;
+		carAcceleration = config.CarAcceleration;
+		carLength = config.CarLength;
+		carWidth = config.CarWidth;
+		Clearance = config.Clearance;
 		carCount = config.NumberOfCars;
+		fullDistance = 0;
+		int temp = 0;
+		while(temp <= carSpeed) {
+			temp += carAcceleration;
+			fullDistance += temp;
+		}
+		//System.out.println("Full distance = "+fullDistance);
+		grid  = new Grid(config.NumberOfStreets, config.NumberOfAvenues, 
+				config.MinimumBlockSide, config.MaximumBlockSide);
+		/*for(Map.Entry<char[], Road> entry : Road.getEntrySet()) {
+			System.out.println(entry.getValue().sectors[1]+"\t"+entry.getValue().roadDir);
+		}*/
+		paintGrid = new PaintGrid();
+		lights = new Schedule('S', config.MaxGreenTime, config.YellowTime);
+		
 		toolBar = new ToolBar();
 		
 		toolBar.setDisplayEvents(new DisplayEvents(){
 			public void draw() {
 				paintGrid.start();
 				lights.start();
-				Car.addCars(carCount, grid);
-				
+				Car.addCars(carCount);
 			}			
 		});
 				

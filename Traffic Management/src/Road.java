@@ -25,7 +25,7 @@ public class Road {
 	protected int numberOfTurningLanes = 1;
 	
 	public static boolean addRoads(int number, int MinBlockSide, 
-			int MaxBlockSide, char type, int CarWidth, int Clearance) {
+			int MaxBlockSide, char type) {
 		if(number == 0 || MinBlockSide <= 0 || MaxBlockSide <= 0 || 
 				(type != 'S' || type != 'A')) {
 			int accPos = 0;
@@ -43,9 +43,9 @@ public class Road {
 					dir = (i%2==0)? 'N':'S';
 				tempRoad = new Road(i, dir, type, accPos);
 				//middle coordinates for all lanes
-				tempRoad.sectors[0] = accPos - 1 - CarWidth - Clearance;
+				tempRoad.sectors[0] = accPos - 1 - Frame.carWidth - Frame.Clearance;
 				tempRoad.sectors[1] = accPos;
-				tempRoad.sectors[2] = accPos + 1 + CarWidth + Clearance;
+				tempRoad.sectors[2] = accPos + 1 + Frame.carWidth + Frame.Clearance;
 				roadMap.put(tempRoad.roadID, tempRoad);
 			}
 			accPos += (int) (MinBlockSide+(MaxBlockSide-MinBlockSide)*Math.random());

@@ -21,6 +21,7 @@ public class Schedule implements Runnable{
 		this.scheduleType = scheduleType;
 		this.greenTime = greenTime;
 		this.yellowTime = yellowTime;
+		sleepTime = 100;
 	}
 	
 	private synchronized void workTime() {
@@ -36,9 +37,39 @@ public class Schedule implements Runnable{
 						sleepTime = yellowTime;
 				}
 			}
-			
-		} else
-			sleepTime = 100;
+		} else if(scheduleType == 'S') {
+			for(Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
+				if(entry.getValue().control[0] == 'E') continue;
+				tempPoint = entry.getValue();
+				tempPoint.cycleTime += sleepTime;
+				if((tempPoint.control[0] == 'Y' || tempPoint.control[1] == 'Y') &&
+						tempPoint.cycleTime > (yellowTime+sleepTime)) {
+					tempPoint.nextControl();
+					tempPoint.cycleTime = 0;
+					/*if(scheduleType == 'C') { keep separate
+						if(tempPoint.control[0] == 'G') {
+							tempPoint.nextStreet.expectedCars[0] = tempPoint.comingCars[0];
+							tempPoint.nextStreet
+						}
+					}*/
+				} else if((tempPoint.control[0] == 'G' || tempPoint.control[1] == 'G') &&
+						tempPoint.cycleTime > (greenTime+sleepTime)) {
+					tempPoint.nextControl();
+					tempPoint.cycleTime = 0;
+				} else if((tempPoint.control[0] != 'Y' && tempPoint.control[1] != 'Y') &&
+						tempPoint.cycleTime > (yellowTime+sleepTime)) {
+					if(tempPoint.control[0] == 'R' && 
+							(tempPoint.comingCars[0] > tempPoint.comingCars[1])) {
+						tempPoint.nextControl();
+						tempPoint.cycleTime = 0;
+					} else if(tempPoint.control[1] == 'R' &&
+							(tempPoint.comingCars[1] > tempPoint.comingCars[0])) {
+						tempPoint.nextControl();
+						tempPoint.cycleTime = 0;
+					}
+				}
+			}
+		}
 	}
 	
 	@Override

@@ -23,6 +23,7 @@ public class Statistics {
 		carsInGrid = Frame.carCount;
 		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
 			tempCar = entry.getValue();
+			tempCar.exitTime = (tempCar.exitTime == 0)? System.currentTimeMillis() : tempCar.exitTime;
 			carTimeDifference = tempCar.exitTime - tempCar.entryTime;
 			totalCarTime += carTimeDifference;
 			totalCarDistance += tempCar.carDistance;

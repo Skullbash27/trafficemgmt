@@ -31,7 +31,7 @@ public class Configuration {
 	//	Exponential Car Insertion Rate
 	//	Number of Cars
 	protected int Lambda = 10;
-	protected int NumberOfCars = 1000;
+	protected int NumberOfCars = 100;
 		
 	// Grid class:
 	//	Number of Streets and Avenues
@@ -59,7 +59,7 @@ public class Configuration {
 	//	Maximum Car Speed in c/second unit
 	//	Car Acceleration in c/second2 unit
 	//	Car length and width in pixels
-	protected int CarSpeed = 10;
+	protected int CarSpeed = 5;
 	protected int CarAcceleration = 1;
 	protected int CarLength = 6;
 	protected int CarWidth = 3;
