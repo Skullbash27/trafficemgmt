@@ -30,8 +30,8 @@ public class Configuration {
 	// Simulation class:
 	//	Exponential Car Insertion Rate
 	//	Number of Cars
-	protected int Lambda = 10;
-	protected int NumberOfCars = 100;
+	protected int Lambda = 2;
+	protected int NumberOfCars = 1000;
 		
 	// Grid class:
 	//	Number of Streets and Avenues
@@ -51,9 +51,11 @@ public class Configuration {
 	//	Maximum Red Time could be Maximum Green Time + Yellow Time
 	//	Yellow Time in seconds
 	//	Intersection light initial status (TBD)
+	//	Scheduling Scheme D, S, C, V
 	protected int MaxRedTime = 7000;
 	protected int MaxGreenTime = 5000;
 	protected int YellowTime = 2000;
+	protected char ScheulingScheme = 'C';
 		
 	// Car class:
 	//	Maximum Car Speed in c/second unit
@@ -128,7 +130,8 @@ public class Configuration {
 			CarWidth = value;
 		else if(name.equals("Clearance"))
 			Clearance = value;
-		else
+		else if(name.equals("ScheulingScheme"))
+			ScheulingScheme = (char) value;
 			System.out.println("Config file parsing error on line " + line_number);
 		return;
 	}
