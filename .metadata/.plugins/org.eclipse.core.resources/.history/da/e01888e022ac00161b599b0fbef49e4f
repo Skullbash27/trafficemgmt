@@ -1,0 +1,48 @@
+# Copyright 2016
+
+# traffic.conf is part of Traffic Simulation Package.
+
+##############################################################################
+
+# traffic.conf
+# Traffic Simulation Package configuration file
+# default values in Configuration.java as used if value is not set in config file
+
+# Simulation class:
+#	Exponential Car Insertion Rate
+#	Number of Cars
+Lambda			10
+NumberOfCars	30
+
+# Grid class:
+#	Number of Streets and Avenues
+#	Maximum and Minimum Block Side Length in c unit
+NumberOfStreets		3
+NumberOfAvenues		3
+MaximumBlockSide	40
+MinimumBlockSide	25
+
+# Road class:
+#	Number of Forward and Turning Lanes
+NumberOfForwardLanes	2
+NumberOfTurningLanes	1
+
+# TrafficLight class
+#	Maximum Red and Green time in seconds
+#	Maximum Red Time could be Maximum Green Time + Yellow Time
+#	Yellow Time in seconds
+#	Intersection light initial status (TBD)
+MaxRedTime		7000
+MaxGreenTime	5000
+YellowTime		2000
+
+# Car class:
+#	Maximum Car Speed in c/second unit
+#	Car Acceleration in c/second2 unit
+#	Car length and width in pixels
+#	Clearance distance for both sides of the car
+CarSpeed		5
+CarAcceleration	1
+CarLength		6
+CarWidth		3
+Clearance		2

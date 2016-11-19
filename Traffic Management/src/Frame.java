@@ -14,11 +14,13 @@ public class Frame extends JFrame {
 	protected final int frameHeight = 600;
 	protected Configuration config;
 	protected Grid grid;
+	public static boolean isRunning = false;
+	public static int systemTime = 0;
 	/*
 	 * communicating configuration variables to classes through static variables
 	 */
 	protected static int carSpeed, carAcceleration, carLength, 
-			carWidth, Clearance, carCount, fullDistance;
+			carWidth, Clearance, fullDistance, Lambda, NumberOfCars;
 	
 	public Frame() {
 		super("Traffic Management System");
@@ -29,7 +31,8 @@ public class Frame extends JFrame {
 		carLength = config.CarLength;
 		carWidth = config.CarWidth;
 		Clearance = config.Clearance;
-		carCount = config.NumberOfCars;
+		NumberOfCars = config.NumberOfCars;
+		Lambda = config.Lambda;
 		fullDistance = 0;
 		int temp = 0;
 		while(temp <= carSpeed) {
@@ -43,17 +46,17 @@ public class Frame extends JFrame {
 			System.out.println(entry.getValue().sectors[1]+"\t"+entry.getValue().roadDir);
 		}*/
 		paintGrid = new PaintGrid();
-		lights = new Schedule('S', config.MaxGreenTime, config.YellowTime);
-		
+		if(config.ScheulingScheme == 'D')
+			System.out.print("Dumb");
+		else if(config.ScheulingScheme == 'S')
+			System.out.print("Self Managed");
+		else if(config.ScheulingScheme == 'C')
+			System.out.print("Coordinated");
+		else if(config.ScheulingScheme == 'V')
+			System.out.print("Convoy");
+		System.out.println(" Scheduling is in use");
 		toolBar = new ToolBar();
-		
-		toolBar.setDisplayEvents(new DisplayEvents(){
-			public void draw() {
-				paintGrid.start();
-				lights.start();
-				Car.addCars(carCount);
-			}			
-		});
+		lights = new Schedule(config.ScheulingScheme, config.MaxGreenTime, config.YellowTime);
 				
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,7 +66,23 @@ public class Frame extends JFrame {
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
-    		
-        
-	}	
+		
+		paintGrid.paint(paintGrid.getGraphics());
+		while(true) {
+			if(isRunning) {
+				paintGrid.relax();
+				paintGrid.repaint();
+				lights.workTime();
+				lights.whatCars();
+				systemTime += 100;
+			}
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 }

@@ -41,9 +41,12 @@ public class TrafficPoint {
 	protected int[] comingCars = new int[]{0, 0};
 	protected int[] expectedStraightCars = new int[]{0, 0};
 	protected int[] expectedTurningCars = new int[]{0, 0};
+	protected int[] expectedCars = new int[]{0, 0};
 	/*
-	 * parameter for third scheduling for previous traffic points 
+	 * parameter for second and third scheduling for previous traffic points 
 	 * to pass on # cars to be released after green time 
+	 * [0] for street
+	 * [1] for avenue
 	 */
 	//queue of cars waiting
 	
@@ -391,16 +394,26 @@ public class TrafficPoint {
 		if(this.control[0] == 'E')		//not street or avenue
 			return false;
 		else if(control[0] == 'R') {
-			if(control[1] == 'R')
+			if(control[1] == 'R') {
 				control[0] = 'G';
-			else if(control[1] == 'G')
+				this.expectedCars[0] = 0;
+				this.nextStreet.expectedCars[0] += this.expectedStraightCars[0];
+				this.nextAvenue.expectedCars[1] += this.expectedTurningCars[0];
+			} else if(control[1] == 'G')
 				control[1] = 'Y';
-			else if(control[1] == 'Y')
+			else if(control[1] == 'Y') {
 				control = new char[]{'G','R'};
+				this.expectedCars[0] = 0;
+				this.nextStreet.expectedCars[0] += this.expectedStraightCars[0];
+				this.nextAvenue.expectedCars[1] += this.expectedTurningCars[0];
+			}
 		} else if(control[0] == 'G') {
 			control[0] = 'Y';
 		} else if(control[0] == 'Y') {
 			control = new char[]{'R','G'};
+			this.expectedCars[1] = 0;
+			this.nextAvenue.expectedCars[1] += this.expectedStraightCars[1];
+			this.nextStreet.expectedCars[0] += this.expectedTurningCars[1];
 		} else
 			control = new char[]{'R','R'};
 		/*System.out.print(this.pointID);
@@ -456,6 +469,7 @@ public class TrafficPoint {
 		boolean[] TT = new boolean[]{true, true};
 		boolean[] TF = new boolean[]{true, false};
 		boolean[] FF = new boolean[]{false, false};
+		if(this.control[1] == 'X') return TF;
 		int i, j, di, dj;
 		for(i=0; i<4; i++) {
 			if(i == 3) break;
@@ -577,10 +591,7 @@ public class TrafficPoint {
 					return TT;
 				}
 			}
-		} else if(tempCar.remainingTurns > 0) {
-			//----------------------------------------
-			
-			//----------------------------------------
+		} else if(this == tempCar.turningPoint1 || this == tempCar.turningPoint2) {
 			if(tempCar.dir == 'N') {		//difference between js, i == di
 				if(dj == 0 && this.control[1] == 'R') {
 					return FF;
@@ -741,9 +752,9 @@ public class TrafficPoint {
 					System.out.println(" turning lane "+tempCar.lane);*/
 				} else if(tempCar.remainingTurns > 1) {
 					if(tempCar.turningPoint1.roadDir[1] == 'N')
-						tempCar.lane = 'R';
-					else if(tempCar.turningPoint1.roadDir[1] == 'S')
 						tempCar.lane = 'L';
+					else if(tempCar.turningPoint1.roadDir[1] == 'S')
+						tempCar.lane = 'R';
 				}
 				if(i == di)				//moving in same square - sector
 					return TF;

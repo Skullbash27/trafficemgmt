@@ -2,20 +2,20 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="System.out.print" key="selection"/>
+		<item value="Thre" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="this.x++;"/>
+			<item value="thre"/>
+			<item value="put"/>
+			<item value="tempCar1"/>
 			<item value="system.out.print"/>
 			<item value="System.out.print"/>
 			<item value="grid"/>
 			<item value="queue"/>
-			<item value="17"/>
-			<item value="roadDir"/>
-			<item value="abs"/>
-			<item value="private"/>
 		</list>
 		<list key="replacehistory">
 			<item value="protected"/>

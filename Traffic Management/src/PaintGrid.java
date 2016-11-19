@@ -1,18 +1,19 @@
 /* This class will be responsible for drawing the grid 
- * Layouting the streets, avenues, entry points
+ * Layout the streets, avenues, entry points
  * and traffic signals
  */
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.swing.ImageIcon;
 
-public class PaintGrid extends Canvas implements Runnable {
+public class PaintGrid extends Canvas {
 	
 	private static final long serialVersionUID = 1L;
-	private Thread gridPaint;
-	private boolean isRunning = false;
+	/*private Thread gridPaint;
+	private boolean isRunning = false;*/
 	
 	private Image northImg, southImg, eastImg, westImg;
 	
@@ -23,43 +24,28 @@ public class PaintGrid extends Canvas implements Runnable {
 	Image offscreen;
 	Graphics offgraphics;
 	
-	private synchronized void relax() {
+	public void relax() {
 		TrafficPoint tempPoint;
-		Car tempCar = null;
+		Car tempCar = null, tempCar1 = null;
 		int distance = Integer.MAX_VALUE;
 		int tempDistance;
 		boolean wait = false;
-		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
-			if(entry.getValue().phase != 'Q') continue;		//not queued car
-			tempCar = entry.getValue();
+		
+		for(Entry<char[], Car> entry1 : Car.getEntrySet()) {
+			tempCar = entry1.getValue();
+			if(tempCar.phase != 'Q') continue;		//not queued car
 			tempPoint = tempCar.entrancePoint;
 			//check if entrance point && road in front clear
-			for(Map.Entry<char[], Car> entry2 : Car.getEntrySet()) {
-				if(entry2.getValue().phase != 'M') continue;
-				distance = tempPoint.distance(entry2.getValue());
+			for(Entry<char[], Car> entry2 : Car.getEntrySet()) {
+				tempCar1 = entry2.getValue();
+				if(tempCar1.phase != 'M') continue;
+				distance = tempPoint.distance(tempCar1);
 				wait = Math.abs(distance) < (Frame.carLength+2*Frame.Clearance);
 				if(wait) {
 					break;
 				}
 			}
 			if(!wait) {
-				if(tempPoint.roadDir[0] == 'N' || tempPoint.roadDir[0] =='S') {
-					tempPoint.comingCars[1]--;
-					if(tempPoint.nextAvenue == tempCar.turningPoint1 || 
-							tempPoint.nextAvenue == tempCar.turningPoint2)
-						tempPoint.nextAvenue.comingCars[0]++;
-					else
-						tempPoint.nextAvenue.comingCars[1]++;
-				} else if(tempPoint.roadDir[0] == 'E' || tempPoint.roadDir[0] == 'W') {
-					tempPoint.comingCars[0]--;
-					//update each counter separately for streets and avenues
-					//not correct -- update straight and turning
-					if(tempPoint.nextStreet == tempCar.turningPoint1 || 
-							tempPoint.nextStreet == tempCar.turningPoint2)
-						tempPoint.nextStreet.comingCars[1]++;
-					else
-						tempPoint.nextStreet.comingCars[0]++;
-				}
 				/*System.out.print(tempCar.carID);
 				System.out.println(" car moving");*/
 				if(tempCar.lane == 'M')
@@ -82,22 +68,39 @@ public class PaintGrid extends Canvas implements Runnable {
 						tempPoint.nextAvenue : tempPoint.nextStreet;
 				//tempCar.phase = 'M'; fixed in enterGrid()
 				tempCar.enterGrid();
+				if(tempCar.dir == 'N' || tempCar.dir =='S') {
+					tempCar.nextPoint.comingCars[1]++;
+					if(tempCar.nextPoint == tempCar.turningPoint1)
+						tempCar.nextPoint.expectedTurningCars[1]++;
+					else
+						tempCar.nextPoint.expectedStraightCars[1]++;
+				} else if(tempCar.dir == 'E' || tempCar.dir == 'W') {
+					tempCar.nextPoint.comingCars[0]++;
+					//update each counter separately for streets and avenues
+					//not correct -- update straight and turning
+					if(tempCar.nextPoint == tempCar.turningPoint1)
+						tempCar.nextPoint.expectedTurningCars[0]++;
+					else
+						tempCar.nextPoint.expectedStraightCars[0]++;
+				}
+				Car.mCarCount++;
 			}
 			wait = false;
 		}
-		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
-			if(entry.getValue().phase != 'M') continue;		//if car not moving
-			tempCar = entry.getValue();
+		for(Entry<char[], Car> entry1 : Car.getEntrySet()) {
+			tempCar = entry1.getValue();
+			if(tempCar.phase != 'M') continue;		//if car not moving
 			if(tempCar.dir == 'N' || tempCar.dir == 'W')
 				distance = Integer.MIN_VALUE;
 			else if(tempCar.dir == 'S' || tempCar.dir == 'E')
 				distance = Integer.MAX_VALUE;
-			for(Map.Entry<char[], Car> entry1 : Car.getEntrySet()) {
-				if(tempCar == entry1.getValue()) continue;
-				if(entry1.getValue().phase != 'M') continue;	//if car not moving
-				if(tempCar.road != entry1.getValue().road) continue;
+			for(Entry<char[], Car> entry2 : Car.getEntrySet()) {
+				tempCar1 = entry2.getValue();
+				if(tempCar == tempCar1) continue;
+				if(tempCar1.phase != 'M') continue;	//if car not moving
+				//if(tempCar.road != entry1.getValue().road) continue;
 				
-				tempDistance = tempCar.distance(entry1.getValue());
+				tempDistance = tempCar.distance(tempCar1);
 				/*System.out.print(tempCar.carID);
 				System.out.print("\t");
 				System.out.print(entry1.getValue().carID);
@@ -115,7 +118,7 @@ public class PaintGrid extends Canvas implements Runnable {
 			distance = (distance==Integer.MIN_VALUE)? Integer.MAX_VALUE:Math.abs(distance);
 			tempCar.moveXY(distance);
 		}
-		repaint();
+		//repaint();
 		/*wait = false;
 		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
 			wait = entry.getValue().phase != 'S';
@@ -128,7 +131,7 @@ public class PaintGrid extends Canvas implements Runnable {
 		}*/
 	}
 	
-	public synchronized void paint(Graphics g) {
+	public void paint(Graphics g) {
 		Dimension d = new Dimension(Road.xAccumulativePosition, 
 				Road.yAccumulativePosition);
 		if (offscreen == null) {
@@ -240,13 +243,13 @@ public class PaintGrid extends Canvas implements Runnable {
 	}
 	
 	private void paintCars(Graphics g) {
-		
 		Car tempCar;
 		int HLength = 1+(int)(Frame.carLength/2);
 		int HWidth = 1+(int)(0.5*(Frame.carWidth-Frame.Clearance));
-		for(Map.Entry<char[], Car> entry : Car.getEntrySet()) {
-			if(entry.getValue().phase != 'M') continue;
-			tempCar = entry.getValue();
+		
+		for(Entry<char[], Car> entry1 : Car.getEntrySet()) {
+			tempCar = entry1.getValue();
+			if(tempCar.phase != 'M') continue;
 			switch(tempCar.remainingTurns) {
 			case 0: g.setColor(new Color(0, 255, 255));
 					break;
@@ -271,10 +274,17 @@ public class PaintGrid extends Canvas implements Runnable {
         westImg = new ImageIcon("images/west.png").getImage();
 	}
 	
-	@Override
+	@Override   
+    public Dimension getPreferredSize() {
+        return new Dimension(Road.xAccumulativePosition, 
+				Road.yAccumulativePosition);
+    }
+	
+	/*@Override
 	public void run() {
 		while (isRunning) {
 			relax();
+			repaint();
 			try {
 				Thread.sleep(150);
 			} catch (InterruptedException e) {
@@ -282,12 +292,6 @@ public class PaintGrid extends Canvas implements Runnable {
 			}
 		}
 	}
-	
-	@Override   
-    public Dimension getPreferredSize() {
-        return new Dimension(Road.xAccumulativePosition, 
-				Road.yAccumulativePosition);
-    }
 	public void start() {
 		gridPaint = new Thread(this);
 		isRunning = true;
@@ -297,5 +301,5 @@ public class PaintGrid extends Canvas implements Runnable {
 	public void stop() {
 		gridPaint.interrupt();
 		isRunning = false;
-	}
+	}*/
 }

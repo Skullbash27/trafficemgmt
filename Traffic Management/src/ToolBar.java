@@ -13,10 +13,10 @@ public class ToolBar extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JButton start;
 	private JButton stop;
-	private DisplayEvents events;
-	public boolean isRunning = false;		 
+	//private DisplayEvents events;
+	//public boolean isRunning = false;		 
 	
-	public ToolBar() {		
+	public ToolBar() {
 		start = new JButton("Start");
 		stop = new JButton("Stop");		
 		start.addActionListener(this);
@@ -26,25 +26,19 @@ public class ToolBar extends JPanel implements ActionListener {
 		add(stop);
 	}	
 
-	public void setDisplayEvents(DisplayEvents events) {
+	/*public void setDisplayEvents(DisplayEvents events) {
 		this.events = events;
-	}
+	}*/
 		
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		JButton clicked = (JButton) event.getSource();
 		if (clicked == start) {
 			start.setEnabled(false);
-			isRunning = true;
-			if (events != null) {
-				events.draw();		
-				
-			}				
-		}		
-		else if (isRunning == true) {
-			if (events != null) {
-			//	events.draw();
-			}
+			Frame.isRunning = true;
+		}
+		else if (Frame.isRunning == true) {
+			Frame.isRunning = false;
 			StatWindow stats = new StatWindow();
 			stats.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			stats.setVisible(true);
