@@ -319,7 +319,7 @@ public class Car {
 			this.dxy = new int[]{temp, 0};
 	}
 	
-	public void moveXY(int distance) {
+	public void moveXY(int distance, int speed) {
 		
 		//car outside grid *was a nested under condition if next point is exit 
 		if(this.xy[0] < 0 || this.xy[0] > Road.xAccumulativePosition ||
@@ -327,13 +327,23 @@ public class Car {
 			Car.mCarCount--;
 			Car.sCarCount++;
 			this.phase = 'S';
-			exitTime = System.currentTimeMillis();
+			exitTime = Frame.systemTime;
 			return;
 		}
 		
-		if(distance <= Frame.fullDistance) {
+		if(Frame.schedulingScheme != 'V' && Math.abs(distance) <= Frame.fullDistance) {
 			this.decreaseSpeed();
-		} else {
+		} /*else if(Frame.schedulingScheme == 'V' && 
+				Math.abs(distance) < Frame.SpeedAndDist[1][Frame.SpeedAndDist[0].length-1]) {
+			int i=0;
+			for(i=Frame.SpeedAndDist[0].length-1; i>0; i--) {
+				if(Frame.SpeedAndDist[0][i] < Math.abs(speed-Math.abs(this.dxy[0]+this.dxy[1]))) {
+					break;
+				}
+			}
+			if(Math.abs(distance) < (Frame.SpeedAndDist[1][i]+Frame.carLength)) this.decreaseSpeed();
+			else this.increaseSpeed();
+		} */else {
 			char tempDir = this.dir;
 			boolean[] decide = this.nextPoint.intersectionLogic(this, this.dxy);
 			if(decide[0]) {
@@ -380,6 +390,7 @@ public class Car {
 				this.decreaseSpeed();
 			}
 		}
+		
 		this.xy[0] += this.dxy[0];
 		this.xy[1] += this.dxy[1];
 		this.carDistance += (this.dxy[0] == 0)? Math.abs(this.dxy[1]):Math.abs(this.dxy[0]);

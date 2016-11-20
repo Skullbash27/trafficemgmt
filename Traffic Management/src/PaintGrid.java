@@ -27,7 +27,7 @@ public class PaintGrid extends Canvas {
 	public void relax() {
 		TrafficPoint tempPoint;
 		Car tempCar = null, tempCar1 = null;
-		int distance = Integer.MAX_VALUE;
+		int distance = Integer.MAX_VALUE, speed = Frame.carSpeed;
 		int tempDistance;
 		boolean wait = false;
 		
@@ -40,7 +40,7 @@ public class PaintGrid extends Canvas {
 				tempCar1 = entry2.getValue();
 				if(tempCar1.phase != 'M') continue;
 				distance = tempPoint.distance(tempCar1);
-				wait = Math.abs(distance) < (Frame.carLength+2*Frame.Clearance);
+				wait = Math.abs(distance) < (Frame.carLength+Frame.Clearance);
 				if(wait) {
 					break;
 				}
@@ -99,24 +99,34 @@ public class PaintGrid extends Canvas {
 				if(tempCar == tempCar1) continue;
 				if(tempCar1.phase != 'M') continue;	//if car not moving
 				//if(tempCar.road != entry1.getValue().road) continue;
-				
 				tempDistance = tempCar.distance(tempCar1);
 				/*System.out.print(tempCar.carID);
 				System.out.print("\t");
 				System.out.print(entry1.getValue().carID);
 				System.out.print("\t"+distance+"\t"+tempDistance);*/
 				if(tempCar.dir == 'N' || tempCar.dir == 'W') {			//negative directions
-					if(tempDistance < 0)
-						distance = Math.max(distance, tempDistance);
+					if(tempDistance < 0) {
+						if(tempDistance > distance) {
+							distance = tempDistance;
+							speed = Math.abs(tempCar1.dxy[0]+tempCar1.dxy[1]);
+						}
+						//distance = Math.max(distance, tempDistance);
+					}
 				} else if(tempCar.dir == 'S' || tempCar.dir == 'E') {	//positive directions
-					if(tempDistance > 0)
-						distance = Math.min(distance, tempDistance);
+					if(tempDistance > 0) {
+						if(tempDistance < distance) {
+							distance = tempDistance;
+							speed = Math.abs(tempCar1.dxy[0]+tempCar1.dxy[1]);
+						}
+						//distance = Math.min(distance, tempDistance);
+					}
 				}
 				//System.out.println("\t"+distance);
 			}
 			//Making distance = 0 if it equals Math.abs(Integer.MIN_VALUE)
 			distance = (distance==Integer.MIN_VALUE)? Integer.MAX_VALUE:Math.abs(distance);
-			tempCar.moveXY(distance);
+			tempCar.moveXY(distance, speed);
+			speed = Frame.carSpeed;
 		}
 		//repaint();
 		/*wait = false;

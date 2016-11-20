@@ -16,6 +16,7 @@ public class Frame extends JFrame {
 	protected Grid grid;
 	public static boolean isRunning = false;
 	public static int systemTime = 0;
+	public static char schedulingScheme = 'D';
 	/*
 	 * communicating configuration variables to classes through static variables
 	 */
@@ -33,13 +34,18 @@ public class Frame extends JFrame {
 		Clearance = config.Clearance;
 		NumberOfCars = config.NumberOfCars;
 		Lambda = config.Lambda;
+		Frame.schedulingScheme = config.ScheulingScheme;
 		fullDistance = 0;
 		int temp = 0;
 		while(temp <= carSpeed) {
 			temp += carAcceleration;
 			fullDistance += temp;
 		}
-		//System.out.println("Full distance = "+fullDistance);
+		fullDistance += Clearance;
+		/*for(i=0; i<SpeedAndDist[0].length; i++) {
+			System.out.println("Speed: "+SpeedAndDist[0][i]+" Distance: "+SpeedAndDist[1][i]);
+		}
+		System.out.println("Full distance = "+fullDistance);*/
 		grid  = new Grid(config.NumberOfStreets, config.NumberOfAvenues, 
 				config.MinimumBlockSide, config.MaximumBlockSide);
 		/*for(Map.Entry<char[], Road> entry : Road.getEntrySet()) {
