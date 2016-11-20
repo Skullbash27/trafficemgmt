@@ -30,16 +30,16 @@ public class Configuration {
 	// Simulation class:
 	//	Exponential Car Insertion Rate
 	//	Number of Cars
-	protected int Lambda = 2;
-	protected int NumberOfCars = 1000;
+	protected int Lambda = 5;
+	protected int NumberOfCars = 100;
 		
 	// Grid class:
 	//	Number of Streets and Avenues
 	//	Maximum and Minimum Block Side Length in c unit
 	protected int NumberOfStreets = 3;
 	protected int NumberOfAvenues = 3;
-	protected int MaximumBlockSide = 40;
-	protected int MinimumBlockSide = 15;
+	protected int MaximumBlockSide = 50;
+	protected int MinimumBlockSide = 50;
 		
 	// Road class:
 	//	Number of Forward and Turning Lanes
@@ -52,10 +52,10 @@ public class Configuration {
 	//	Yellow Time in seconds
 	//	Intersection light initial status (TBD)
 	//	Scheduling Scheme D, S, C, V
-	protected int MaxRedTime = 7000;
-	protected int MaxGreenTime = 5000;
-	protected int YellowTime = 2000;
-	protected char ScheulingScheme = 'C';
+	protected int MaxRedTime = 10000;
+	protected int MaxGreenTime = 9000;
+	protected int YellowTime = 1000;
+	protected char ScheulingScheme = 'S';
 		
 	// Car class:
 	//	Maximum Car Speed in c/second unit

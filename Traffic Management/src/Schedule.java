@@ -5,7 +5,7 @@ public class Schedule {
 	private int greenTime = 5000;
 	private int yellowTime = 2000;
 	private int sleepTime = 100;
-	private double x = 0;
+	private double x = 1;
 	private double xFact = x;
 	
 	//private boolean isRunning = false;
@@ -23,7 +23,7 @@ public class Schedule {
 		this.greenTime = greenTime;
 		this.yellowTime = yellowTime;
 		sleepTime = 100;
-		System.out.println("Time\tWiting\tIn\tMoving\tTotal Out");
+		System.out.println("Time\tTotal Cars\tWaiting\tIn\tMoving\tTotal Out");
 	}
 	
 	public void workTime() {
@@ -107,17 +107,22 @@ public class Schedule {
 	}
 	
 	public void whatCars() {
-		if(x > 0) {
-			this.x++;
-			this.xFact = this.x * this.xFact;
+		double temp = 0;
+		this.x = (int) Frame.systemTime / 1000;		//multiply by a random number to avoid getting zero (0)
+													//try curve fitting for x stretching by 10
+		if(this.x > 0) {
+			this.xFact = 1;
+			for(int i=1; i<=this.x; i++) {
+				this.xFact *= i;
+			}
+			temp = (Frame.systemTime == 0)? 0 : (int) ((Frame.NumberOfCars*Math.exp(-1*Frame.Lambda)*Math.pow(Frame.Lambda,this.x))/(this.xFact));
 		} else {
-			x = 1; 
 			xFact = x;
 		}
-		int temp = (Frame.systemTime == 0)? 0 : (int) ((Frame.NumberOfCars*Math.exp(-1*Frame.Lambda)*(Frame.Lambda*this.x))/(this.xFact));
-		if(temp > 0) Car.addCars(temp);
-		System.out.println(Frame.systemTime+"\t"+(Car.carCount-Car.mCarCount-Car.sCarCount)
-				+"\t"+temp+"\t"+Car.mCarCount+"\t"+Car.sCarCount);
+		if(temp > 0) Car.addCars((int)temp);
+		System.out.println(Frame.systemTime+"\t"+Car.carCount+"\t"
+				+(Car.carCount-Car.mCarCount-Car.sCarCount)
+				+"\t"+temp+"\t"+Car.mCarCount+"\t"+Car.sCarCount+"\t");
 	}
 	
 	/*@Override
