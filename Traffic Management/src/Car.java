@@ -10,6 +10,9 @@ public class Car {
 	protected static int sCarCount = 0;		//car in statistics phase
 	private static HashMap <char[], Car> allCars = new HashMap<char[], Car>();
 	
+	//Convoy pointer
+	Convoy convoy = null;
+	
 	protected int[] xy = new int[]{-1, -1};	//x, y position in grid
 	protected TrafficPoint entrancePoint;
 	protected TrafficPoint exitPoint;
@@ -282,32 +285,67 @@ public class Car {
 	public boolean enterGrid() {
 		if (phase != 'Q') return false;
 		this.phase = 'M';
-		this.entryTime = System.currentTimeMillis();
+		this.entryTime = Frame.systemTime;
 		return true;
 	}
 	
 	private void increaseSpeed() {
-		if(this.dir == 'N')
+		//speed changes for first car only and it change it for all
+		if(Frame.schedulingScheme == 'V') {
+			if(this.convoy != null && this.convoy.listOfCars[0] != this) {
+				return;
+			}
+		}
+		
+		if(this.dir == 'N') {
 			this.dxy[1] = Math.min(this.dxy[1]+Frame.carAcceleration, Frame.carSpeed);
-		else if(this.dir == 'S')
+			this.dxy[0] = 0;
+		}
+		else if(this.dir == 'S') {
 			this.dxy[1] = Math.max(this.dxy[1]-Frame.carAcceleration, -1*Frame.carSpeed);
-		else if(this.dir == 'E')
+			this.dxy[0] = 0;
+		}
+		else if(this.dir == 'E') {
 			this.dxy[0] = Math.max(this.dxy[0]-Frame.carAcceleration, -1*Frame.carSpeed);
-		else if(this.dir == 'W')
+			this.dxy[1] = 0;
+		}
+		else if(this.dir == 'W') {
 			this.dxy[0] = Math.min(this.dxy[0]+Frame.carAcceleration, Frame.carSpeed);
+			this.dxy[1] = 0;
+		}
+		//copy same speed for all cars in convoy
+		if(this.convoy != null) this.convoy.changeSpeedForAll(this.dxy);
 	}
 	private void decreaseSpeed() {
-		if(this.dir == 'N')
+		if(Frame.schedulingScheme == 'V') {
+			if(this.convoy != null && this.convoy.listOfCars[0] != this) {
+				return;
+			}
+		}
+		
+		if(this.dir == 'N') {
 			this.dxy[1] = Math.max(this.dxy[1]-Frame.carAcceleration, 0);
-		else if(this.dir == 'S')
+			this.dxy[0] = 0;
+		}
+		else if(this.dir == 'S') {
 			this.dxy[1] = Math.min(this.dxy[1]+Frame.carAcceleration, 0);
-		else if(this.dir == 'E')
+			this.dxy[0] = 0;
+		}
+		else if(this.dir == 'E') {
 			this.dxy[0] = Math.min(this.dxy[0]+Frame.carAcceleration, 0);
-		else if(this.dir == 'W')
+			this.dxy[1] = 0;
+		}
+		else if(this.dir == 'W') {
 			this.dxy[0] = Math.max(this.dxy[0]-Frame.carAcceleration, 0);
+			this.dxy[1] = 0;
+		}
+		//copy same speed for all cars in convoy
+		if(this.convoy != null) this.convoy.changeSpeedForAll(this.dxy);
 	}
 	
 	public void switchSpeed() {
+		if(this.convoy != null) this.convoy.leave();
+		
 		int temp = Math.abs(this.dxy[0]+this.dxy[1]);
 		if(this.dir == 'N')
 			this.dxy = new int[]{0, temp};
@@ -319,7 +357,7 @@ public class Car {
 			this.dxy = new int[]{temp, 0};
 	}
 	
-	public void moveXY(int distance, int speed) {
+	public void moveXY(int distance, Car inFront) {
 		
 		//car outside grid *was a nested under condition if next point is exit 
 		if(this.xy[0] < 0 || this.xy[0] > Road.xAccumulativePosition ||
@@ -328,22 +366,11 @@ public class Car {
 			Car.sCarCount++;
 			this.phase = 'S';
 			exitTime = Frame.systemTime;
+			//if(this.convoy != null) this.convoy.leave(this);
 			return;
 		}
 		
-		if(Frame.schedulingScheme != 'V' && Math.abs(distance) <= Frame.fullDistance) {
-			this.decreaseSpeed();
-		} /*else if(Frame.schedulingScheme == 'V' && 
-				Math.abs(distance) < Frame.SpeedAndDist[1][Frame.SpeedAndDist[0].length-1]) {
-			int i=0;
-			for(i=Frame.SpeedAndDist[0].length-1; i>0; i--) {
-				if(Frame.SpeedAndDist[0][i] < Math.abs(speed-Math.abs(this.dxy[0]+this.dxy[1]))) {
-					break;
-				}
-			}
-			if(Math.abs(distance) < (Frame.SpeedAndDist[1][i]+Frame.carLength)) this.decreaseSpeed();
-			else this.increaseSpeed();
-		} */else {
+		if(Math.abs(this.nextPoint.distance(this)) <= Frame.fullDistance) {
 			char tempDir = this.dir;
 			boolean[] decide = this.nextPoint.intersectionLogic(this, this.dxy);
 			if(decide[0]) {
@@ -387,8 +414,31 @@ public class Car {
 					System.out.println(this.nextPoint.pointID);*/
 				}
 			} else {
+				//if(this.convoy != null) this.convoy.leave(this);
 				this.decreaseSpeed();
 			}
+		} else if(distance <= Frame.fullDistance) {
+			this.decreaseSpeed();
+		} else this.increaseSpeed();
+		
+		if(Frame.schedulingScheme == 'V') {
+			//join cars into convoys
+			//convoys form only at stop
+			if(Math.abs(this.dxy[0]+this.dxy[1]) == 0 && inFront != null && this.convoy == null) {
+				if(distance < Frame.fullDistance && distance > Frame.carLength && 
+						inFront.convoy != null) {
+					this.convoy = inFront.convoy.joinConvoy(this);
+				}
+			}
+			if(Math.abs(this.dxy[0]+this.dxy[1]) == 0 && this.convoy == null) 
+				this.convoy = new Convoy(this);
+			
+			if((this.dxy[0]+this.dxy[1]) != 0 && this.convoy != null) {
+				if(this.convoy.carsInConv == 1) this.convoy.leave();
+			}
+			//if convoy does not have head ==> kill it
+			if(this.convoy != null && (this.convoy.listOfCars[0] == null || 
+					this.convoy.listOfCars[0].convoy != this.convoy)) this.convoy.leave();
 		}
 		
 		this.xy[0] += this.dxy[0];
