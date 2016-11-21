@@ -1,0 +1,44 @@
+import java.util.Arrays;
+
+public class Convoy {
+	
+	protected Car[] listOfCars = new Car[10];
+	protected int carsInConv = 0;
+	
+	public Convoy(Car firstInConv) {
+		this.listOfCars[0] = firstInConv;
+		carsInConv++;
+	}
+	
+	public Convoy joinConvoy(Car inConv) {
+		int i=0;
+		if(carsInConv >= listOfCars.length)
+			return null;
+		else {
+			for(i=0; i<this.listOfCars.length; i++) {
+				if(this.listOfCars[i] == null) break;
+			}
+			if(this.listOfCars[i] == null) {
+				listOfCars[i] = inConv;
+				return this;
+			} else return null;
+		}
+	}
+	
+	public void changeSpeedForAll(int[] dxy) {
+		for(int i=0; i<this.listOfCars.length; i++) {
+			if(this.listOfCars[i] != null) {
+				this.listOfCars[i].dxy = Arrays.copyOfRange(dxy, 0, 2);
+			}
+		}
+	}
+	
+	public void leave(Car wasIn) {
+		for(int i=0; i<this.listOfCars.length; i++) {
+			if(this.listOfCars[i] == wasIn) {
+				this.listOfCars[i] = null;
+				wasIn.convoy = null;
+			}
+		}
+	}
+}

@@ -28,6 +28,7 @@ public class Schedule {
 	
 	public void workTime() {
 		TrafficPoint tempPoint = null;
+		boolean wait = false;
 		if(scheduleType == 'D') {
 			for(Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
 				if(entry.getValue().control[0] == 'E') continue;
@@ -102,6 +103,36 @@ public class Schedule {
 						tempPoint.cycleTime = 0;
 					}
 				}
+			}
+		} else if(this.scheduleType == 'V') {
+			for(Entry<char[], TrafficPoint> entry : TrafficPoint.getEntrySet()) {
+				if(entry.getValue().control[0] == 'E') continue;
+				tempPoint = entry.getValue();
+				tempPoint.cycleTime += sleepTime;
+				if((tempPoint.control[0] == 'Y' || tempPoint.control[1] == 'Y') && 
+						tempPoint.cycleTime > (yellowTime+sleepTime)) {
+					for(Entry<Integer, Convoy> entry1 : Convoy.getEntrySet()) {
+						if(tempPoint.roadDir[0] != entry1.getValue().listOfCars[0].dir ||
+								tempPoint.roadDir[1] != entry1.getValue().listOfCars[0].dir) continue;
+						if(tempPoint.roadDir[0] == 'E' || tempPoint.roadDir[1] == 'S') { //negative directions
+							wait = (tempPoint.distance(entry1.getValue().listOfCars[0]) > 0 && 
+									tempPoint.distance(entry1.getValue().lastCar()) < 0);
+						} else if(tempPoint.roadDir[0] == 'W' || tempPoint.roadDir[1] == 'N') {
+							wait = (tempPoint.distance(entry1.getValue().listOfCars[0]) < 0 && 
+									tempPoint.distance(entry1.getValue().lastCar()) > 0);
+						}
+						if(wait) break;
+					}
+					if(!wait) {
+						tempPoint.nextControl();
+						tempPoint.cycleTime = 0;
+					}
+				} else if((tempPoint.control[0] == 'G' || tempPoint.control[1] == 'G') && 
+						tempPoint.cycleTime > (greenTime+sleepTime)) {
+					tempPoint.nextControl();
+					tempPoint.cycleTime = 0;
+				}
+				wait = false;
 			}
 		}
 	}

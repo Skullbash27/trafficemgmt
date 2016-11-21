@@ -1,0 +1,64 @@
+import java.util.Arrays;
+import java.util.HashMap;
+
+public class Convoy {
+	private static HashMap <Integer, Convoy> allConvoys = new HashMap<Integer, Convoy>();
+	private static Integer numOfConvoys = new Integer(0);
+	
+	protected Car[] listOfCars = new Car[7];
+	protected int carsInConv = 0;
+	
+	public Convoy(Car firstInConv) {
+		this.listOfCars[carsInConv] = firstInConv;
+		carsInConv++;
+		numOfConvoys = new Integer(numOfConvoys.intValue()+1);
+		allConvoys.put(numOfConvoys, this);
+	}
+	
+	public Convoy joinConvoy(Car inConv) {
+		if(carsInConv >= listOfCars.length || inConv.dir != this.listOfCars[0].dir)
+			return null;
+		else {
+			this.listOfCars[this.carsInConv] = inConv;
+			this.carsInConv++;
+			return this;
+		}
+	}
+	
+	public void changeSpeedForAll(int[] dxy) {
+		for(int i=1; i<this.listOfCars.length; i++) {
+			if(this.listOfCars[i] != null) {
+				this.listOfCars[i].dxy = Arrays.copyOfRange(dxy, 0, 2);
+			}
+		}
+	}
+	
+	public void leave(Car wasIn) {
+		int i=0;
+		
+		for(i=0; i<this.listOfCars.length; i++) {
+			if(this.listOfCars[i] != null) {
+				this.listOfCars[i].convoy = null;
+				this.listOfCars[i] = null;
+			}
+		}
+		this.carsInConv = 0;
+		
+		/*while(this.listOfCars[i] != wasIn) {
+			i++;
+			if(i>=this.listOfCars.length) break;
+		}
+		if(i>=this.listOfCars.length) return;
+		if(i>0) {
+			this.carsInConv = i;
+			this.backXY = this.listOfCars[i].xy;
+		}
+		while(i<this.listOfCars.length) {
+			if(this.listOfCars[i] != null) {
+				this.listOfCars[i].convoy = null;
+				this.listOfCars[i] = null;
+			}
+			i++;
+		}*/
+	}
+}
