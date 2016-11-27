@@ -52,9 +52,9 @@ public class Configuration {
 	//	Yellow Time in seconds
 	//	Intersection light initial status (TBD)
 	//	Scheduling Scheme D, S, C, V
-	protected int MaxRedTime = 6000;
-	protected int MaxGreenTime = 4000;
-	protected int YellowTime = 2000;
+	protected int MaxRedTime = 4000;
+	protected int MaxGreenTime = 3000;
+	protected int YellowTime = 1000;
 	protected char ScheulingScheme = 'C';
 		
 	// Car class:
