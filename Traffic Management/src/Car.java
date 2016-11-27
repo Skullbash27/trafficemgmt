@@ -37,6 +37,7 @@ public class Car {
 	//Code added here
 	public long entryTime;
 	public long exitTime;
+	public long queueTime;
 	public long carDistance;
 	//String tempStringExit;
 	//Code added here
@@ -269,6 +270,7 @@ public class Car {
 			}
 			tempCar.dxy = new int[]{0, 0};
 			allCars.put(tempCar.carID, tempCar);
+			tempCar.queueTime = Frame.systemTime;
 			if(entrance.roadDir[0] == 'N' || entrance.roadDir[0] == 'S')
 				entrance.comingCars[1]++;
 			else if(entrance.roadDir[0] == 'E' || entrance.roadDir[0] == 'W')

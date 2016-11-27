@@ -30,16 +30,16 @@ public class Configuration {
 	// Simulation class:
 	//	Exponential Car Insertion Rate
 	//	Number of Cars
-	protected int Lambda = 5;
-	protected int NumberOfCars = 100;
+	protected int Lambda = 15;
+	protected int NumberOfCars = 350;
 		
 	// Grid class:
 	//	Number of Streets and Avenues
 	//	Maximum and Minimum Block Side Length in c unit
 	protected int NumberOfStreets = 3;
 	protected int NumberOfAvenues = 3;
-	protected int MaximumBlockSide = 30;
-	protected int MinimumBlockSide = 30;
+	protected int MaximumBlockSide = 35;
+	protected int MinimumBlockSide = 35;
 		
 	// Road class:
 	//	Number of Forward and Turning Lanes
@@ -52,10 +52,10 @@ public class Configuration {
 	//	Yellow Time in seconds
 	//	Intersection light initial status (TBD)
 	//	Scheduling Scheme D, S, C, V
-	protected int MaxRedTime = 4000;
-	protected int MaxGreenTime = 3000;
-	protected int YellowTime = 1000;
-	protected char ScheulingScheme = 'V';
+	protected int MaxRedTime = 6000;
+	protected int MaxGreenTime = 4000;
+	protected int YellowTime = 2000;
+	protected char ScheulingScheme = 'C';
 		
 	// Car class:
 	//	Maximum Car Speed in c/second unit
@@ -137,8 +137,8 @@ public class Configuration {
 	}
 	
 	public void printConfig() {
-		System.out.println("Lambda\t\t\t" + Lambda);
-		System.out.println("Number of Cars\t\t" + NumberOfCars);
+		System.out.println("Lambda\t" + Lambda);
+		System.out.println("Number of Cars\t" + NumberOfCars);
 		System.out.println("Number of Streets\t" + NumberOfStreets);
 		System.out.println("Number of Avenues\t" + NumberOfAvenues);
 		System.out.println("Maximum Block Side\t" + MaximumBlockSide);
@@ -147,8 +147,8 @@ public class Configuration {
 		System.out.println("Number of Turning Lanes\t" + NumberOfTurningLanes);
 		System.out.println("Maximum Red Time\t" + MaxRedTime);
 		System.out.println("Maximum Green Time\t" + MaxGreenTime);
-		System.out.println("Yellow Time\t\t" + YellowTime);
-		System.out.println("Car Speed\t\t" + CarSpeed);
+		System.out.println("Yellow Time\t" + YellowTime);
+		System.out.println("Car Speed\t" + CarSpeed);
 		System.out.println("Car Acceleration\t" + CarAcceleration);
 		System.out.println("Car Length in pixels\t" + CarLength);
 		System.out.println("Car Width in pixles\t" + CarWidth);
