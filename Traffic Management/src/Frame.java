@@ -9,12 +9,11 @@ public class Frame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	protected PaintGrid paintGrid;
 	protected Schedule lights;
-	protected ToolBar toolBar;
 	protected final int frameWidth = 800;
 	protected final int frameHeight = 600;
 	protected Configuration config;
 	protected Grid grid;
-	public static boolean isRunning = false;
+	public static boolean isRunning = true;
 	public static int systemTime = 0;
 	public static char schedulingScheme = 'D';
 	/*
@@ -26,7 +25,7 @@ public class Frame extends JFrame {
 	public Frame() {
 		super("Traffic Management System");
 		config  = new Configuration("traffic.conf");
-		
+		config.printConfig();
 		carSpeed = config.CarSpeed;
 		carAcceleration = config.CarAcceleration;
 		carLength = config.CarLength;
@@ -61,12 +60,10 @@ public class Frame extends JFrame {
 		else if(config.ScheulingScheme == 'V')
 			System.out.print("Convoy");
 		System.out.println(" Scheduling is in use");
-		toolBar = new ToolBar();
 		lights = new Schedule(config.ScheulingScheme, config.MaxGreenTime, config.YellowTime);
 				
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		add(toolBar, BorderLayout.PAGE_START);
 		add(paintGrid, BorderLayout.CENTER);
 		//setSize(frameWidth, frameHeight);
 		pack();
@@ -74,21 +71,23 @@ public class Frame extends JFrame {
 		setVisible(true);
 		
 		paintGrid.paint(paintGrid.getGraphics());
-		while(true) {
-			if(isRunning) {
-				paintGrid.relax();
-				paintGrid.repaint();
-				lights.workTime();
-				lights.whatCars();
-				systemTime += 100;
+		while(isRunning) {
+			paintGrid.relax();
+			paintGrid.repaint();
+			lights.workTime();
+			lights.whatCars();
+			systemTime += 100;
+			if(Car.carCount != 0 && Car.sCarCount == Car.carCount && Car.mCarCount == 0) {
+				isRunning = false;
 			}
 			try {
-				Thread.sleep(200);
+				Thread.sleep(250);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		new StatWindow();
 	}
 	
 }

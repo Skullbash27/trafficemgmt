@@ -4,10 +4,12 @@ import java.util.Map.Entry;
 public class Statistics {
 	
 	public static long carTimeDifference = 0;
+	public static long carQueueTime = 0;
 	public static long totalCarTime = 0;		//Calculates Total time of all cars
 	//public static double totalCarListTime;
 	public static double totalCarDistance = 0;	//Calculates Total distance pf all cars
 	public static double averageTime;
+	public static double averageQueueTime;
 	public static double averageDistance;
 	public static double shortTime = Double.POSITIVE_INFINITY;
 	public static double shortDistance = Double.POSITIVE_INFINITY;
@@ -29,8 +31,8 @@ public class Statistics {
 				System.out.print("ERROR: Zero Exit Time\t");
 				tempCar.printCar();
 			}*/
-			carTimeDifference = tempCar.exitTime - tempCar.entryTime;
-			totalCarTime += carTimeDifference;
+			carQueueTime += (tempCar.entryTime - tempCar.queueTime);
+			totalCarTime += (tempCar.exitTime - tempCar.entryTime);
 			totalCarDistance += tempCar.carDistance;
 			shortTime = Math.min(shortTime, carTimeDifference);
 			shortDistance = Math.min(shortDistance, tempCar.carDistance);
@@ -44,8 +46,10 @@ public class Statistics {
 	}
 	
 	public static void carTimeSum() {
-		totalCarTime = (totalCarTime / 1000);
-		System.out.println("Total Time of all cars:\t" +totalCarTime +"\tseconds");
+		totalCarTime = totalCarTime / 1000;
+		System.out.println("Total moving time of all cars in system:\t" +totalCarTime +"\tseconds");
+		carQueueTime = carQueueTime / 1000;
+		System.out.println("Total queue time of all cars:\t" +carQueueTime +"\tseconds");
 	}
 	
 	public static void carDistanceSum() {
@@ -54,9 +58,12 @@ public class Statistics {
 	
 	public static void averageStats() {
 		averageTime = totalCarTime/carsInGrid;
-		averageDistance = totalCarDistance/carsInGrid;	
+		averageQueueTime = carQueueTime/carsInGrid;
+		averageDistance = totalCarDistance/carsInGrid;
 		System.out.println("Average time travelled by all cars in the grid:\t" 
 				+ averageTime +"\tseconds");
+		System.out.println("Average queue time for all cars before entring the grid:\t"
+				+averageQueueTime+"\tseconds");
 		System.out.println("Average time distance travelled by all cars in the grid:\t" 
 				+ averageDistance);
 	}

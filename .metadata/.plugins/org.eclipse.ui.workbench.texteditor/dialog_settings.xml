@@ -2,12 +2,13 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="speed" key="selection"/>
+		<item value="isRun" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="isrun"/>
 			<item value="speed"/>
 			<item value="this.x++;"/>
 			<item value="thre"/>
@@ -15,7 +16,6 @@
 			<item value="tempCar1"/>
 			<item value="system.out.print"/>
 			<item value="System.out.print"/>
-			<item value="grid"/>
 		</list>
 		<list key="replacehistory">
 			<item value="protected"/>
