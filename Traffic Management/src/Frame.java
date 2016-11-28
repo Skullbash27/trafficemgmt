@@ -65,7 +65,7 @@ public class Frame extends JFrame {
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		add(paintGrid, BorderLayout.CENTER);
-		//setSize(frameWidth, frameHeight);
+		setSize(frameWidth, frameHeight);
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -81,7 +81,7 @@ public class Frame extends JFrame {
 				isRunning = false;
 			}
 			try {
-				Thread.sleep(250);
+				Thread.sleep(150);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
