@@ -132,7 +132,8 @@ public class Configuration {
 			Clearance = value;
 		else if(name.equals("ScheulingScheme"))
 			ScheulingScheme = (char) value;
-			System.out.println("Config file parsing error on line " + line_number);
+		else
+			System.out.println("Config file parsing error on line " + line_number + " command " + name);
 		return;
 	}
 	
